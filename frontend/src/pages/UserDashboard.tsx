@@ -176,7 +176,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {cvList.map((cv) => (
                 <div key={cv.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="h-32 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <div className="h-32 gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                     <svg className="w-12 h-12 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>

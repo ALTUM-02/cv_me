@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { apolloClient } from '../api/graphql';
 import {
   CREATE_CV,
-  UPDATE_CV,
   DELETE_CV,
   UPDATE_PERSONAL_INFO,
   UPDATE_CUSTOMIZATION,
@@ -141,6 +140,8 @@ interface CVStore {
   setTemplate: (templateId: TemplateId) => Promise<void>;
   
   updateQRConfig: (config: Partial<QRCodeConfig>) => Promise<void>;
+  importLinkedInData: (source: string) => Promise<void>;
+  loadSampleData: () => void;
   
   // Backend operations
   fetchCvList: () => Promise<void>;
@@ -981,6 +982,69 @@ export const useCVStore = create<CVStore>()(
           await get().loadCV(currentCvId);
         }
       }
+    },
+
+    importLinkedInData: async (_source: string) => {
+      // Placeholder: simulate import by loading sample data
+      // In a real app, this would parse `source` and map fields
+      await new Promise((res) => setTimeout(res, 800));
+      get().loadSampleData();
+    },
+
+    loadSampleData: () => {
+      const sample: CVData = {
+        personalInfo: {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          email: 'jane.doe@example.com',
+          phone: '+1 555-1234',
+          address: '123 Example St',
+          city: 'Anytown',
+          country: 'USA',
+          postalCode: '12345',
+          linkedinUrl: 'https://www.linkedin.com/in/janedoe',
+          portfolioUrl: 'https://janedoe.dev',
+          summary: 'Experienced software engineer with a passion for building impactful applications.'
+        },
+        experiences: [
+          {
+            id: generateId(),
+            company: 'Acme Corp',
+            position: 'Senior Engineer',
+            location: 'Remote',
+            startDate: '2019-01-01',
+            endDate: '',
+            current: true,
+            description: 'Working on frontend infrastructure and developer tools.',
+            highlights: ['Led migration to modern stack', 'Improved build times by 40%']
+          }
+        ],
+        education: [
+          {
+            id: generateId(),
+            institution: 'State University',
+            degree: 'BSc Computer Science',
+            field: 'Computer Science',
+            startDate: '2012-09-01',
+            endDate: '2016-06-01'
+          }
+        ],
+        skills: [
+          { id: generateId(), name: 'React', level: 80, category: 'Technical' },
+          { id: generateId(), name: 'TypeScript', level: 75, category: 'Technical' }
+        ],
+        languages: [
+          { id: generateId(), name: 'English', proficiency: 'native' }
+        ],
+        certifications: [
+          { id: generateId(), name: 'Certified Example', issuer: 'Example Org', date: '2021-05-01' }
+        ],
+        projects: [
+          { id: generateId(), name: 'CV Builder', description: 'A modern CV building tool', technologies: ['React', 'TypeScript'], highlights: [] }
+        ],
+      };
+
+      set({ cvData: sample, customization: { ...defaultCustomization }, qrConfig: { ...defaultQRConfig } });
     },
 
     // ==================== Reset ====================

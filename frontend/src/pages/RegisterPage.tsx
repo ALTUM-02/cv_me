@@ -21,9 +21,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<'details' | 'otp'>('details');
-  const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [generatedOtp, setGeneratedOtp] = useState('');
 
   useEffect(() => {
     loadUser();
@@ -68,7 +66,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
 
     // Generate OTP code on frontend
     const code = generateOTP();
-    setGeneratedOtp(code);
 
     // Store OTP in backend
     const backendResult = await sendOtp(formData.email, code);
@@ -83,7 +80,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     await sendOTPEmail(formData.email, code);
 
     setIsLoading(false);
-    setOtpSent(true);
     setStep('otp');
     setSuccess('Verification code sent to your email! Check your inbox.');
     setCountdown(60);
@@ -119,7 +115,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setIsLoading(true);
 
     const code = generateOTP();
-    setGeneratedOtp(code);
 
     const backendResult = await sendOtp(formData.email, code);
     
@@ -165,7 +160,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
           {/* Error Message */}
           {errors.general && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {errors.general}
@@ -175,7 +170,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
           {/* Success Message */}
           {success && (
             <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-green-600 dark:text-green-400 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               {success}
@@ -254,7 +249,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                className="w-full py-3 gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
               >
                 {isLoading ? (
                   <>
@@ -302,7 +297,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={isLoading || otp.length !== 6}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -328,7 +323,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setStep('details'); setOtp(''); setErrors({}); setSuccess(''); setOtpSent(false); }}
+                  onClick={() => { setStep('details'); setOtp(''); setErrors({}); setSuccess(''); }}
                   className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   ← Edit details

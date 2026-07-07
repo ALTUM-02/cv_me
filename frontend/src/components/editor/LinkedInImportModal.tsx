@@ -7,7 +7,7 @@ interface LinkedInImportModalProps {
 }
 
 export const LinkedInImportModal: React.FC<LinkedInImportModalProps> = ({ isOpen, onClose }) => {
-  const { importLinkedInData, loadSampleData } = useCVStore();
+  const { loadSampleData } = useCVStore();
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [importMethod, setImportMethod] = useState<'url' | 'paste' | 'sample'>('sample');

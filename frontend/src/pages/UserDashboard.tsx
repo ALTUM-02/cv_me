@@ -184,7 +184,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onNavigate }) => {
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-semibold text-gray-900 dark:text-white truncate">{cv.title}</h4>
-                      <span className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ml-2 ${
+                      <span className={`px-2 py-0.5 text-xs rounded-full shrink-0 ml-2 ${
                         cv.status === 'published' 
                           ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                           : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'

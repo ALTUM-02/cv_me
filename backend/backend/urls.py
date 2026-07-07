@@ -23,7 +23,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('graphql/', csrf_exempt(GraphQLView.as_view(schema=schema)))
+    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True)))
 ]
 
 if settings.DEBUG:

@@ -148,8 +148,8 @@ export const ProjectEditor: React.FC = () => {
       ))}
       
       <button
-        onClick={() => {
-          const id = addProject();
+        onClick={async () => {
+          const id = await addProject();
           setExpandedId(id);
         }}
         className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-500 transition-colors flex items-center justify-center gap-2"

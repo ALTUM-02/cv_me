@@ -39,17 +39,38 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    "graphene_django",
-    'corsheaders',
-    'django_filters',
-    
+
     'accounts',
     'cv_builder',
 ]
 
+# Optional third-party apps: include them only if installed so migrations
+# can run in environments without these packages available.
+OPTIONAL_INSTALLED_APPS = []
+try:
+    import graphene_django  # type: ignore
+except Exception:
+    graphene_django = None
+else:
+    OPTIONAL_INSTALLED_APPS.append('graphene_django')
+
+try:
+    import corsheaders  # type: ignore
+except Exception:
+    corsheaders = None
+else:
+    OPTIONAL_INSTALLED_APPS.append('corsheaders')
+
+try:
+    import django_filters  # type: ignore
+except Exception:
+    django_filters = None
+else:
+    OPTIONAL_INSTALLED_APPS.append('django_filters')
+
+INSTALLED_APPS += OPTIONAL_INSTALLED_APPS
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +79,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Insert corsheaders middleware at the top if corsheaders is available
+if 'corsheaders' in OPTIONAL_INSTALLED_APPS:
+    MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
 ROOT_URLCONF = 'backend.urls'
 

@@ -127,3 +127,36 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'mediafiles'
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.User'
+
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+
+# GraphQL Configuration
+GRAPHENE = {
+    'SCHEMA': 'schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
+}
+
+# graphql-jwt Configuration
+GRAPHQL_JWT = {
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_EXPIRATION_DELTA': timedelta(days=7),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_AUTHENTICATION_CLASSES': (
+        'graphql_jwt.backends.JSONWebTokenBackend',
+    ),
+}

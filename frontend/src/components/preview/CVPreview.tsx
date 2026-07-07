@@ -21,9 +21,9 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
 
   if (!hasContent) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[800px]">
+      <div className="w-full h-full flex items-center justify-center gradient-to-br from-gray-50 to-gray-100 min-h-800px">
         <div className="text-center p-8">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
             <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -67,7 +67,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
           {/* Photo */}
           {customization.showPhoto && personalInfo.photo ? (
             <div 
-              className={`w-28 h-28 flex-shrink-0 overflow-hidden border-4 border-white shadow-lg ${
+              className={`w-28 h-28 shrink-0 overflow-hidden border-4 border-white shadow-lg ${
                 customization.photoShape === 'circle' ? 'rounded-full' :
                 customization.photoShape === 'rounded' ? 'rounded-xl' : 'rounded-none'
               }`}
@@ -80,7 +80,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
             </div>
           ) : (
             <div 
-              className={`w-28 h-28 flex-shrink-0 bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl font-bold text-white border-2 border-white/30 ${
+              className={`w-28 h-28 shrink-0 bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl font-bold text-white border-2 border-white/30 ${
                 customization.photoShape === 'circle' ? 'rounded-full' :
                 customization.photoShape === 'rounded' ? 'rounded-xl' : 'rounded-none'
               }`}
@@ -148,7 +148,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
           
           {/* QR Code */}
           {qrConfig.enabled && qrConfig.url && (
-            <div className="flex-shrink-0 bg-white p-2 rounded-lg shadow-lg">
+            <div className="shrink-0 bg-white p-2 rounded-lg shadow-lg">
               <QRCodeSVG 
                 value={qrConfig.url}
                 size={qrConfig.size}
@@ -202,7 +202,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
                 {experiences.map((exp) => (
                   <div key={exp.id} className="relative pl-4 border-l-2 border-gray-200">
                     <div 
-                      className="absolute left-[-5px] top-0 w-2 h-2 rounded-full"
+                      className="absolute left-5px top-0 w-2 h-2 rounded-full"
                       style={{ backgroundColor: customization.colors.accent }}
                     />
                     <div className="flex justify-between items-start mb-1">
@@ -342,7 +342,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
                 {education.map((edu) => (
                   <div key={edu.id} className="relative pl-4 border-l-2 border-gray-200">
                     <div 
-                      className="absolute left-[-5px] top-0 w-2 h-2 rounded-full"
+                      className="absolute left-5px top-0 w-2 h-2 rounded-full"
                       style={{ backgroundColor: customization.colors.accent }}
                     />
                     <h3 className="font-bold text-sm" style={{ color: customization.colors.text }}>

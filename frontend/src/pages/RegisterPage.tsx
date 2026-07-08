@@ -140,116 +140,141 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 transition-colors duration-300">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="w-full max-w-lg relative z-10">
+        {/* Logo & Header */}
+        <div className="text-center mb-10 animate-fadeInDown">
+          <div className="w-20 h-20 bg-linear-to-br from-emerald-500 to-teal-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl transform hover:scale-110 transition-transform duration-300">
+            <svg className="w-11 h-11 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ResumeForge</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Create your account</p>
+          <h1 className="text-5xl font-black text-white mb-3 tracking-tight">ResumeForge</h1>
+          <p className="text-lg text-gray-300 font-light">Join thousands creating amazing CVs</p>
         </div>
 
         {/* Register Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Get started</h2>
+        <div className="bg-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-gray-700/50 transition-all duration-300 animate-fadeInUp hover:border-gray-600/80">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">Get started</h2>
+            <div className="h-1 w-12 bg-linear-to-r from-emerald-500 to-teal-600 rounded-full"></div>
+          </div>
 
           {/* Error Message */}
           {errors.general && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-2xl text-red-300 text-sm flex items-start gap-3 animate-shake">
+              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {errors.general}
+              <span>{errors.general}</span>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-green-600 dark:text-green-400 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/50 rounded-2xl text-emerald-300 text-sm flex items-start gap-3">
+              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              {success}
+              <span>{success}</span>
             </div>
           )}
 
           {/* Step 1: Enter Details */}
           {step === 'details' && (
-            <form onSubmit={handleSendOtp} className="space-y-4">
+            <form onSubmit={handleSendOtp} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                    placeholder="John"
-                  />
-                  {errors.firstName && <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>}
+                  <label className="block text-sm font-semibold text-gray-200 mb-2">First Name</label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.firstName ? 'border-red-500' : 'border-gray-600'}`}
+                      placeholder="John"
+                    />
+                  </div>
+                  {errors.firstName && <p className="mt-1 text-xs text-red-400">{errors.firstName}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                    placeholder="Doe"
-                  />
-                  {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>}
+                  <label className="block text-sm font-semibold text-gray-200 mb-2">Last Name</label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.lastName ? 'border-red-500' : 'border-gray-600'}`}
+                      placeholder="Doe"
+                    />
+                  </div>
+                  {errors.lastName && <p className="mt-1 text-xs text-red-400">{errors.lastName}</p>}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                  placeholder="you@example.com"
-                />
-                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                <label className="block text-sm font-semibold text-gray-200 mb-2">Email Address</label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-600'}`}
+                    placeholder="you@example.com"
+                  />
+                </div>
+                {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                  placeholder="At least 6 characters"
-                />
-                {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
+                <label className="block text-sm font-semibold text-gray-200 mb-2">Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.password ? 'border-red-500' : 'border-gray-600'}`}
+                    placeholder="At least 6 characters"
+                  />
+                </div>
+                {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                  placeholder="Re-enter your password"
-                />
-                {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>}
+                <label className="block text-sm font-semibold text-gray-200 mb-2">Confirm Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-600'}`}
+                    placeholder="Re-enter your password"
+                  />
+                </div>
+                {errors.confirmPassword && <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                className="w-full py-4 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-emerald-500/50"
               >
                 {isLoading ? (
                   <>
@@ -260,7 +285,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     Sending Verification Code...
                   </>
                 ) : (
-                  'Send Verification Code'
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Send Verification Code
+                  </>
                 )}
               </button>
             </form>
@@ -268,36 +298,35 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
 
           {/* Step 2: Enter OTP */}
           {step === 'otp' && (
-            <form onSubmit={handleVerifyOtp} className="space-y-5">
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/50">
+                  <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  We sent a verification code to<br />
-                  <span className="font-semibold text-gray-900 dark:text-white">{formData.email}</span>
-                </p>
-              </div>
+                <p className="text-sm text-gray-300">\n                  We sent a verification code to<br />\n                  <span className="font-semibold text-white">{formData.email}</span>\n                </p>\n              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Verification Code</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-center text-2xl tracking-[0.5em] font-mono ${errors.otp ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                  placeholder="000000"
-                  maxLength={6}
-                />
-                {errors.otp && <p className="mt-1 text-xs text-red-500">{errors.otp}</p>}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-200">Verification Code</label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className={`relative w-full px-4 py-4 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-3xl tracking-[0.5em] font-mono ${errors.otp ? 'border-red-500' : 'border-gray-600'}`}
+                    placeholder="000000"
+                    maxLength={6}
+                  />
+                </div>
+                {errors.otp && <p className="mt-1 text-xs text-red-400 text-center">{errors.otp}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || otp.length !== 6}
-                className="w-full py-3 gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-emerald-500/50"
               >
                 {isLoading ? (
                   <>
@@ -308,23 +337,28 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     Verifying...
                   </>
                 ) : (
-                  'Verify & Create Account'
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Verify & Create Account
+                  </>
                 )}
               </button>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-4 text-sm">
                 <button
                   type="button"
                   onClick={handleResendOtp}
                   disabled={countdown > 0 || isLoading}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-emerald-400 hover:text-emerald-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend code'}
+                  {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setStep('details'); setOtp(''); setErrors({}); setSuccess(''); }}
-                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  className="text-gray-400 hover:text-gray-300 transition-colors"
                 >
                   ← Edit details
                 </button>
@@ -332,19 +366,70 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             </form>
           )}
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="mt-8 pt-8 border-t border-gray-700/50">
+            <p className="text-center text-gray-400">
               Already have an account?{' '}
               <button
                 onClick={() => onNavigate('login')}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
+                className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors duration-300"
               >
-                Sign In
+                Sign in here
               </button>
             </p>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes blob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .animate-fadeInDown {
+          animation: fadeInDown 0.6s ease-out;
+        }
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

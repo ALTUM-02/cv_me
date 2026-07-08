@@ -2,7 +2,9 @@ import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink } from '@apollo
 import { setContext } from '@apollo/client/link/context';
 
 const httpLink = createHttpLink({
-  uri: '/graphql',
+  // Use trailing slash to match Django's GraphQL URL and avoid redirects
+  uri: '/graphql/',
+  // keep credentials for same-origin requests; proxy will forward to backend
   credentials: 'same-origin',
 });
 

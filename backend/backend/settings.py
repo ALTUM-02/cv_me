@@ -13,6 +13,15 @@ import os
 from pathlib import Path
 
 from datetime import timedelta
+# optional config helper (python-decouple). Provide a safe fallback when missing.
+try:
+    from decouple import config, Csv
+except Exception:
+    def config(key, default=None, cast=None):
+        return default
+    class Csv:
+        def __call__(self, v):
+            return v
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +61,8 @@ INSTALLED_APPS = [
 # can run in environments without these packages available
 
 MIDDLEWARE = [
+    # corsheaders middleware should be as high as possible
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,8 +73,6 @@ MIDDLEWARE = [
 ]
 
 # Insert corsheaders middleware at the top if corsheaders is available
-if 'corsheaders' in OPTIONAL_INSTALLED_APPS:
-    MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -146,6 +155,8 @@ AUTH_USER_MODEL = 'accounts.User'
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ORIGINS = config('CORS_ALLOW_ORIGINS', default='http://localhost:5173', cast=Csv())
 
 # GraphQL Configuration
 GRAPHENE = {

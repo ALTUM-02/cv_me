@@ -318,19 +318,24 @@ class CVInput(graphene.InputObjectType):
 class CreateCV(graphene.Mutation):
     class Arguments:
         title = graphene.String()
+        template_id = graphene.String()
     
     success = graphene.Boolean()
     message = graphene.String()
     cv = graphene.Field(CVSummaryType)
     
-    def mutate(self, info, title='Untitled CV'):
+    def mutate(self, info, title='Untitled CV', template_id=None):
         user = get_user_from_token(info)
         if not user:
             return CreateCV(success=False, message='Authentication required')
         
         cv = CV.objects.create(user=user, title=title)
         PersonalInfo.objects.create(cv=cv)
-        Customization.objects.create(cv=cv)
+        # create customization and optionally set template
+        customization = Customization.objects.create(cv=cv)
+        if template_id is not None:
+            customization.template_id = template_id
+            customization.save()
         QRConfig.objects.create(cv=cv)
         
         return CreateCV(success=True, message='CV created successfully', cv=cv)

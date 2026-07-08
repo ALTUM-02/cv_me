@@ -49,30 +49,7 @@ INSTALLED_APPS = [
 ]
 
 # Optional third-party apps: include them only if installed so migrations
-# can run in environments without these packages available.
-OPTIONAL_INSTALLED_APPS = []
-try:
-    import graphene_django  # type: ignore
-except Exception:
-    graphene_django = None
-else:
-    OPTIONAL_INSTALLED_APPS.append('graphene_django')
-
-try:
-    import corsheaders  # type: ignore
-except Exception:
-    corsheaders = None
-else:
-    OPTIONAL_INSTALLED_APPS.append('corsheaders')
-
-try:
-    import django_filters  # type: ignore
-except Exception:
-    django_filters = None
-else:
-    OPTIONAL_INSTALLED_APPS.append('django_filters')
-
-INSTALLED_APPS += OPTIONAL_INSTALLED_APPS
+# can run in environments without these packages available
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

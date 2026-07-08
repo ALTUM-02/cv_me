@@ -13,6 +13,7 @@ import { LinkedInImportModal } from '../components/editor/LinkedInImportModal';
 import { EmailShareModal } from '../components/editor/EmailShareModal';
 import { FontLibrary } from '../components/ui/FontLibrary';
 import { useAuthStore } from '../store/authStore';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 type EditorTab = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'languages' | 'certifications' | 'customize';
 
@@ -242,6 +243,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
+              <ThemeToggle />
+
               {/* LinkedIn Import */}
               <button
                 onClick={() => setShowLinkedInModal(true)}

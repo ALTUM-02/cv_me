@@ -8,6 +8,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
 import type { GraphQLUser, DashboardStatsData } from '../api/graphql/types';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 interface AdminDashboardProps {
   onNavigate: (page: 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-builder') => void;
@@ -87,6 +88,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             </div>
 
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-linear-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}

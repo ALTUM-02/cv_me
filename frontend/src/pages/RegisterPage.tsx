@@ -166,7 +166,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Register Card */}
-        <div className="bg-white/85 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-white/80 dark:border-gray-700/50 transition-all duration-300 animate-fadeInUp hover:border-emerald-200 dark:hover:border-gray-600/80">
+        <div className="bg-white/85 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-white/80 dark:border-gray-200 dark:border-gray-700/50 transition-all duration-300 animate-fadeInUp hover:border-emerald-200 dark:hover:border-gray-300 dark:border-gray-600/80">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-950 dark:text-white mb-2">Get started</h2>
             <div className="h-1 w-12 bg-linear-to-r from-emerald-500 to-teal-600 rounded-full"></div>
@@ -197,7 +197,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             <form onSubmit={handleSendOtp} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">First Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">First Name</label>
                   <div className="relative group">
                     <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                     <input
@@ -205,14 +205,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.firstName ? 'border-red-500' : 'border-gray-600'}`}
+                      className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                       placeholder="John"
                     />
                   </div>
                   {errors.firstName && <p className="mt-1 text-xs text-red-400">{errors.firstName}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Last Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Last Name</label>
                   <div className="relative group">
                     <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                     <input
@@ -220,7 +220,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.lastName ? 'border-red-500' : 'border-gray-600'}`}
+                      className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                       placeholder="Doe"
                     />
                   </div>
@@ -229,7 +229,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Email Address</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Email Address</label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                   <input
@@ -237,7 +237,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-600'}`}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                     placeholder="you@example.com"
                   />
                 </div>
@@ -245,7 +245,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Password</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Password</label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                   <input
@@ -253,7 +253,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.password ? 'border-red-500' : 'border-gray-600'}`}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                     placeholder="At least 6 characters"
                   />
                 </div>
@@ -261,7 +261,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Confirm Password</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Confirm Password</label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                   <input
@@ -269,7 +269,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`relative w-full px-4 py-3 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-600'}`}
+                    className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                     placeholder="Re-enter your password"
                   />
                 </div>
@@ -310,17 +310,21 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-300">\n                  We sent a verification code to<br />\n                  <span className="font-semibold text-white">{formData.email}</span>\n                </p>\n              </div>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  We sent a verification code to<br />
+                  <span className="font-semibold text-gray-950 dark:text-white">{formData.email}</span>
+                </p>
+              </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-200">Verification Code</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Verification Code</label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
                   <input
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className={`relative w-full px-4 py-4 border rounded-2xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-3xl tracking-[0.5em] font-mono ${errors.otp ? 'border-red-500' : 'border-gray-600'}`}
+                    className={`relative w-full px-4 py-4 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-3xl tracking-[0.5em] font-mono ${errors.otp ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                     placeholder="000000"
                     maxLength={6}
                   />
@@ -356,14 +360,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                   type="button"
                   onClick={handleResendOtp}
                   disabled={countdown > 0 || isLoading}
-                  className="text-emerald-400 hover:text-emerald-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setStep('details'); setOtp(''); setErrors({}); setSuccess(''); }}
-                  className="text-gray-400 hover:text-gray-300 transition-colors"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
                 >
                   ← Edit details
                 </button>
@@ -371,12 +375,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             </form>
           )}
 
-          <div className="mt-8 pt-8 border-t border-gray-700/50">
-            <p className="text-center text-gray-400">
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700/50">
+            <p className="text-center text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
               <button
                 onClick={() => onNavigate('login')}
-                className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors duration-300"
+                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-bold transition-colors duration-300"
               >
                 Sign in here
               </button>

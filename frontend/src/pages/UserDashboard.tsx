@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useCVStore } from '../store/cvStore';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 interface UserDashboardProps {
   onNavigate: (page: 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-builder') => void;
@@ -65,6 +66,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onNavigate }) => {
             </div>
 
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}

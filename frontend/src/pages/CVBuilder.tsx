@@ -206,7 +206,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
           <div className="space-y-4">
             <button
               onClick={() => setShowFontLibrary(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-linear-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
@@ -222,14 +222,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Top Navigation Bar */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm transition-colors duration-300">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -330,7 +330,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
       <div className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Panel - Editor */}
-          <div className={`lg:w-450px xl:w-500px shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
+          <div className={`lg:w-[450px] xl:w-[500px] shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
               {/* Editor Tabs */}
               <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">

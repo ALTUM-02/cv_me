@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;
+}
+
+.dark body {
+  background: #111827;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

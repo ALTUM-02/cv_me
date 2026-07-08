@@ -43,7 +43,7 @@ export const EmailShareModal: React.FC<EmailShareModalProps> = ({ isOpen, onClos
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Header */}
-        <div className="gradient-to-r from-emerald-500 to-teal-600 p-6 text-white">
+        <div className="bg-linear-to-r from-emerald-500 to-teal-600 p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">

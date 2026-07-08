@@ -7,42 +7,60 @@ interface ThemeState {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  initializeTheme: () => void;
 }
+
+const applyTheme = (theme: Theme) => {
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+};
+
+const getPreferredTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'light';
+
+  const stored = window.localStorage.getItem('resumeforge-theme');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.state?.theme === 'dark' || parsed?.state?.theme === 'light') {
+        return parsed.state.theme;
+      }
+    } catch {
+      // Ignore invalid persisted values and fall back to the system preference.
+    }
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'light',
+      theme: getPreferredTheme(),
       toggleTheme: () =>
         set((state) => {
           const next = state.theme === 'light' ? 'dark' : 'light';
-          // Apply to document immediately
-          if (next === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
+          applyTheme(next);
           return { theme: next };
         }),
       setTheme: (theme) => {
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        applyTheme(theme);
+        set({ theme });
+      },
+      initializeTheme: () => {
+        const theme = getPreferredTheme();
+        applyTheme(theme);
         set({ theme });
       },
     }),
     {
       name: 'resumeforge-theme',
       onRehydrateStorage: () => {
-        // Apply stored theme to DOM on page load
         return (state) => {
-          if (state?.theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
+          applyTheme(state?.theme ?? getPreferredTheme());
         };
       },
     }

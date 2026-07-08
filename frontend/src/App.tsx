@@ -5,12 +5,18 @@ import { UserDashboard } from './pages/UserDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { CVBuilder } from './pages/CVBuilder';
 import { useAuthStore } from './store/authStore';
+import { useThemeStore } from './store/themeStore';
 
 type Page = 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-builder';
 
 function App() {
   const { isAuthenticated, user, loadUser } = useAuthStore();
+  const initializeTheme = useThemeStore((state) => state.initializeTheme);
   
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
+
   // Load user on mount
   useEffect(() => {
     loadUser();

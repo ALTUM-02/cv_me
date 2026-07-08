@@ -202,35 +202,11 @@ export const UPDATE_PERSONAL_INFO = gql`
 export const UPDATE_CUSTOMIZATION = gql`
   mutation UpdateCustomization(
     $cvId: ID!
-    $primaryColor: String
-    $secondaryColor: String
-    $accentColor: String
-    $textColor: String
-    $backgroundColor: String
-    $headingFont: String
-    $bodyFont: String
-    $fontSize: String
-    $lineSpacing: String
-    $sectionSpacing: String
-    $showPhoto: Boolean
-    $showSocialLinks: Boolean
-    $showPageNumbers: Boolean
+    $input: CustomizationInput
   ) {
     updateCustomization(
       cvId: $cvId
-      primaryColor: $primaryColor
-      secondaryColor: $secondaryColor
-      accentColor: $accentColor
-      textColor: $textColor
-      backgroundColor: $backgroundColor
-      headingFont: $headingFont
-      bodyFont: $bodyFont
-      fontSize: $fontSize
-      lineSpacing: $lineSpacing
-      sectionSpacing: $sectionSpacing
-      showPhoto: $showPhoto
-      showSocialLinks: $showSocialLinks
-      showPageNumbers: $showPageNumbers
+      input: $input
     ) {
       success
       message

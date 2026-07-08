@@ -25,12 +25,14 @@ export const apolloClient = new ApolloClient({
       Query: {
         fields: {
           allCvs: {
-            merge(_existing = [], incoming: unknown[]) {
+            merge(existing = [], incoming: unknown[]) {
+              void existing;
               return incoming;
             },
           },
           allUsers: {
-            merge(_existing = [], incoming: unknown[]) {
+            merge(existing = [], incoming: unknown[]) {
+              void existing;
               return incoming;
             },
           },

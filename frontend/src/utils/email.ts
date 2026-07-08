@@ -44,7 +44,7 @@ export const sendEmail = async (payload: EmailPayload): Promise<EmailResponse> =
         message: data.message || 'Failed to send email',
       };
     }
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: 'Network error. Please try again.',

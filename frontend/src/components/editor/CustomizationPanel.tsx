@@ -50,7 +50,7 @@ const allFontOptions = [
 
 // Font style presets
 type FontStyleValue = 'normal' | 'bold' | 'light' | 'italic';
-const fontStylePresets: { label: string; value: FontStyleValue; style: any }[] = [
+const fontStylePresets: { label: string; value: FontStyleValue; style: React.CSSProperties }[] = [
   { label: 'Normal', value: 'normal', style: {} },
   { label: 'Bold', value: 'bold', style: { fontWeight: 'bold' as const } },
   { label: 'Light', value: 'light', style: { fontWeight: 300 as const } },

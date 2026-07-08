@@ -984,7 +984,8 @@ export const useCVStore = create<CVStore>()(
       }
     },
 
-    importLinkedInData: async (_source: string) => {
+    importLinkedInData: async (source: string) => {
+      void source;
       // Placeholder: simulate import by loading sample data
       // In a real app, this would parse `source` and map fields
       await new Promise((res) => setTimeout(res, 800));

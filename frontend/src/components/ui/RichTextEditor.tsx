@@ -37,8 +37,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const end = textarea.selectionEnd;
     const selectedText = value.substring(start, end);
 
-    let newText = '';
-    let newCursorPos = start;
+    let newText: string;
+    let newCursorPos: number;
 
     switch (format) {
       case 'bold':

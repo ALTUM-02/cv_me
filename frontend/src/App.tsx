@@ -40,7 +40,7 @@ function App() {
     } else if (!isAuthenticated) {
       setCurrentPage('login');
     }
-  }, [isAuthenticated, user]);
+  }, [currentPage, isAuthenticated, user]);
 
   const handleNavigate = (page: Page) => {
     setCurrentPage(page);

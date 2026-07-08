@@ -21,7 +21,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
 
   if (!hasContent) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 min-h-[800px]">
+      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 min-h-800px">
         <div className="text-center p-8">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-linear-to-br from-blue-100 to-blue-200 flex items-center justify-center">
             <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

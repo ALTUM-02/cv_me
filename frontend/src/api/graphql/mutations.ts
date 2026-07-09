@@ -163,41 +163,15 @@ export const DELETE_CV = gql`
 `;
 
 export const UPDATE_PERSONAL_INFO = gql`
-  mutation UpdatePersonalInfo(
-    $cvId: ID!
-    $firstName: String
-    $lastName: String
-    $email: String
-    $phone: String
-    $address: String
-    $city: String
-    $country: String
-    $postalCode: String
-    $linkedinUrl: String
-    $portfolioUrl: String
-    $summary: String
-    $photo: String
-  ) {
-    updatePersonalInfo(
-      cvId: $cvId
-      firstName: $firstName
-      lastName: $lastName
-      email: $email
-      phone: $phone
-      address: $address
-      city: $city
-      country: $country
-      postalCode: $postalCode
-      linkedinUrl: $linkedinUrl
-      portfolioUrl: $portfolioUrl
-      summary: $summary
-      photo: $photo
-    ) {
-      success
-      message
+  mutation UpdatePersonalInfo($input: UpdatePersonalInfoInput!) {
+    updatePersonalInfo(input: $input) {
+      # Add the fields you want the backend to return after updating
+      ok
+      errors
     }
   }
 `;
+
 
 export const UPDATE_CUSTOMIZATION = gql`
   mutation UpdateCustomization(

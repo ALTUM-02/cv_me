@@ -333,7 +333,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
       <div className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Panel - Editor */}
-          <div className={`lg:w-[450px] xl:w-[500px] shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
+          <div className={`lg:w-150 xl:w-100 shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
               {/* Editor Tabs */}
               <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">

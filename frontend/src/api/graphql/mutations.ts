@@ -214,10 +214,10 @@ export const UPDATE_QR_CONFIG = gql`
 `;
 
 export const CREATE_EXPERIENCE = gql`
-  mutation CreateExperience($cvId: ID!) {
-    createExperience(cvId: $cvId) {
+  mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
+    createExperience(cvId: $cvId, input: $input) {
       success
-      # Removed 'message' field here
+      # Note: Include 'message' here ONLY if you added it to the backend as shown below
       experience {
         id
         company
@@ -232,6 +232,7 @@ export const CREATE_EXPERIENCE = gql`
     }
   }
 `;
+
 
 
 export const UPDATE_EXPERIENCE = gql`

@@ -213,58 +213,6 @@ export const UPDATE_QR_CONFIG = gql`
   }
 `;
 
-export const CREATE_EXPERIENCE = gql`
-  mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
-    createExperience(cvId: $cvId, input: $input) {
-      success
-      # Note: Include 'message' here ONLY if you added it to the backend as shown below
-      experience {
-        id
-        company
-        position
-        location
-        startDate
-        endDate
-        current
-        description
-        highlights
-      }
-    }
-  }
-`;
-
-
-
-export const UPDATE_EXPERIENCE = gql`
-  mutation UpdateExperience(
-    $id: ID!
-    $company: String
-    $position: String
-    $location: String
-    $startDate: String
-    $endDate: String
-    $current: Boolean
-    $description: String
-    $highlights: [String]
-    $order: Int
-  ) {
-    updateExperience(
-      id: $id
-      company: $company
-      position: $position
-      location: $location
-      startDate: $startDate
-      endDate: $endDate
-      current: $current
-      description: $description
-      highlights: $highlights
-      order: $order
-    ) {
-      success
-      message
-    }
-  }
-`;
 
 export const DELETE_EXPERIENCE = gql`
   mutation DeleteExperience($id: ID!) {

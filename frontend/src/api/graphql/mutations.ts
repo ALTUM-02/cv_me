@@ -217,7 +217,7 @@ export const CREATE_EXPERIENCE = gql`
   mutation CreateExperience($cvId: ID!) {
     createExperience(cvId: $cvId) {
       success
-      message
+      # Removed 'message' field here
       experience {
         id
         company
@@ -232,6 +232,7 @@ export const CREATE_EXPERIENCE = gql`
     }
   }
 `;
+
 
 export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience(

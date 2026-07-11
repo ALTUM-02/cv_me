@@ -213,6 +213,32 @@ export const UPDATE_QR_CONFIG = gql`
   }
 `;
 
+export const CREATE_EXPERIENCE = gql`
+  mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
+    createExperience(cvId: $cvId, input: $input) {
+      success
+      message
+      experience {
+        id
+        company
+        position
+        location
+        startDate
+        endDate
+        current
+        description
+        highlights
+      }
+    }
+  }
+`;
+
+// Usage in your component
+const [createExperience, { loading, error }] = useMutation<
+  CreateExperienceData, 
+  CreateExperienceVariables
+>(CREATE_EXPERIENCE);
+
 
 export const DELETE_EXPERIENCE = gql`
   mutation DeleteExperience($id: ID!) {

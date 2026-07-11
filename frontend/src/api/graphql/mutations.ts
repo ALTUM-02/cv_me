@@ -163,14 +163,14 @@ export const DELETE_CV = gql`
 `;
 
 export const UPDATE_PERSONAL_INFO = gql`
-  mutation UpdatePersonalInfo($input: UpdatePersonalInfoInput!) {
-    updatePersonalInfo(input: $input) {
-      # Add the fields you want the backend to return after updating
-      ok
-      errors
+  mutation UpdatePersonalInfo($cvId: ID!, $input: PersonalInfoInput!) {
+    updatePersonalInfo(cvId: $cvId, input: $input) {
+      success
+      message
     }
   }
 `;
+
 
 
 export const UPDATE_CUSTOMIZATION = gql`

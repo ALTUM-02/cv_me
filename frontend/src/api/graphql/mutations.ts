@@ -233,11 +233,17 @@ export const CREATE_EXPERIENCE = gql`
   }
 `;
 
-// Usage in your component
-const [createExperience, { loading, error }] = useMutation<
-  CreateExperienceData, 
-  CreateExperienceVariables
->(CREATE_EXPERIENCE);
+export const UPDATE_EXPERIENCE = gql`
+  mutation UpdateExperience($id: ID!, $input: ExperienceInput!) {
+    updateExperience(id: $id, input: $input) {
+      success
+      experience {
+        id
+        company
+      }
+    }
+  }
+`;
 
 
 export const DELETE_EXPERIENCE = gql`

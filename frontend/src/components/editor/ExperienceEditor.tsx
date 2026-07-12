@@ -17,46 +17,6 @@ export const ExperienceEditor: React.FC = () => {
       }
     }
   };
-  // Inside ExperienceEditor.tsx
-// Ensure your useMutation hook uses the correct name
-// const [updateExperience] = useMutation(UPDATE_EXPERIENCE);
-// Inside your ExperienceEditor.tsx component
-
-// Look for your existing form submission function
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  // 1. STACK YOUR DATA: Assuming 'formData' or 'experienceData' is your React state
-  // This line separates 'id' so it is not sent inside the input object
-  const { id, ...inputWithoutId } = formData; 
-
-  try {
-    // 2. RUN THE MUTATION
-    // If you are CREATING a new item:
-    await createExperience({
-      variables: {
-        cvId: currentCvId, // Pass your CV ID here
-        input: inputWithoutId, // Sent without the 'id' field
-      },
-    });
-
-    /* 
-    // OR if you are UPDATING an existing item:
-    await updateExperience({
-      variables: {
-        id: id,               // Sent as the required top-level ID
-        input: inputWithoutId, // Sent without the 'id' field
-      },
-    });
-    */
-
-    console.log("Success!");
-  } catch (error) {
-    console.error("Mutation error:", error);
-  }
-};
-
-
 
   const handleRemoveHighlight = (expId: string, index: number) => {
     const exp = experiences.find(e => e.id === expId);
@@ -67,6 +27,30 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <div className="space-y-4">
+      {/* Add New Experience Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => {
+            const newId = `temp-${Date.now()}`;
+            addExperience({
+              id: newId,
+              company: '',
+              position: '',
+              location: '',
+              startDate: '',
+              endDate: '',
+              current: false,
+              description: '',
+              highlights: []
+            });
+            setExpandedId(newId);
+          }}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          + Add Experience
+        </button>
+      </div>
+
       {experiences.map((exp) => (
         <div 
           key={exp.id}
@@ -153,16 +137,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                   <input
                     type="month"
-                    value={exp.endDate}
+                    value={exp.current ? '' : exp.endDate}
                     onChange={(e) => updateExperience(exp.id, { endDate: e.target.value })}
                     disabled={exp.current}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
-                  <label className="flex items-center gap-2 mt-2">
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={exp.current}
-                      onChange={(e) => updateExperience(exp.id, { current: e.target.value as unknown as boolean })}
+                      onChange={(e) => updateExperience(exp.id, { current: e.target.checked })}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-600">Currently working here</span>
@@ -182,64 +166,48 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Key Achievements</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Key Highlights</label>
                 <div className="space-y-2">
-                  {exp.highlights.map((highlight, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <span className="text-blue-500">▸</span>
-                      <span className="flex-1 text-sm text-gray-700">{highlight}</span>
-                      <button
-                        onClick={() => handleRemoveHighlight(exp.id, idx)}
-                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <input
-                    type="text"
-                    value={highlightInput[exp.id] || ''}
-                    onChange={(e) => setHighlightInput({ ...highlightInput, [exp.id]: e.target.value })}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddHighlight(exp.id);
-                      }
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    placeholder="Add an achievement..."
-                  />
-                  <button
-                    onClick={() => handleAddHighlight(exp.id)}
-                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={highlightInput[exp.id] || ''}
+                      onChange={(e) => setHighlightInput({ ...highlightInput, [exp.id]: e.target.value })}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddHighlight(exp.id)}
+                      placeholder="Add an achievement..."
+                      className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleAddHighlight(exp.id)}
+                      className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  
+                  {exp.highlights.length > 0 && (
+                    <ul className="space-y-1.5 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                      {exp.highlights.map((hl, index) => (
+                        <li key={index} className="flex items-start justify-between gap-2 text-sm text-gray-600">
+                          <span className="leading-relaxed">• {hl}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveHighlight(exp.id, index)}
+                            className="text-gray-400 hover:text-red-500 transition-colors pt-0.5"
+                          >
+                            ×
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
       ))}
-      
-      <button
-        onClick={async () => {
-          const id = await addExperience();
-          setExpandedId(id);
-        }}
-        className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-500 transition-colors flex items-center justify-center gap-2"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-        Add Experience
-      </button>
     </div>
   );
 };

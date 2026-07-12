@@ -527,39 +527,6 @@ class UpdateQRConfig(graphene.Mutation):
 
 # ==================== Experience Mutations ====================
 
-class CreateExperience(graphene.Mutation):
-    class Arguments:
-        cv_id = graphene.ID(required=True)
-        input = graphene.Argument(ExperienceInput)
-    
-    success = graphene.Boolean()
-    experience = graphene.Field(ExperienceType)
-    
-    def mutate(self, info, cv_id, input):
-        user = get_user_from_token(info)
-        if not user:
-            return CreateExperience(success=False)
-        
-        try:
-            cv = CV.objects.get(id=cv_id, user=user)
-            max_order = Experience.objects.filter(cv=cv).count()
-            
-            experience = Experience.objects.create(
-                cv=cv,
-                company=input.company or '',
-                position=input.position or '',
-                location=input.location or '',
-                start_date=input.start_date or '',
-                end_date=input.end_date or '',
-                current=input.current or False,
-                description=input.description or '',
-                highlights=input.highlights or [],
-                order=max_order
-            )
-            return CreateExperience(success=True, experience=experience)
-        except CV.DoesNotExist:
-            return CreateExperience(success=False)
-
 
 class UpdateExperience(graphene.Mutation):
     class Arguments:

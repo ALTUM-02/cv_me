@@ -228,10 +228,9 @@ export const CREATE_EXPERIENCE = gql`
 // ADD THIS NEW ONE BELOW IT:
 export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience($id: ID!, $input: ExperienceInput!) {
-    updateExperience(id: $id, input: $input) {
+    updateExperience( input: $input) {
       success
       experience {
-        id
         company
         position
       }

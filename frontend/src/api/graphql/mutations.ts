@@ -220,7 +220,6 @@ export const CREATE_EXPERIENCE = gql`
     createExperience(cvId: $cvId, input: $input) {
       success
       experience {
-        id
         company
         position
       }

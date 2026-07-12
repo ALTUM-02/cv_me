@@ -17,6 +17,30 @@ export const ExperienceEditor: React.FC = () => {
       }
     }
   };
+  // Inside ExperienceEditor.tsx
+// Ensure your useMutation hook uses the correct name
+// const [updateExperience] = useMutation(UPDATE_EXPERIENCE);
+// Inside your ExperienceEditor.tsx component
+
+const handleUpdate = (experienceToUpdate: any) => {
+  // Destructure to separate id from the rest of the data
+  const { id, __typename, ...cleanInput } = experienceToUpdate;
+
+  // FIX TS2554: Pass both required arguments (id and the input object)
+  // Your store signature in cvStore.ts requires 'id' and 'exp'
+  updateExperience(id, {
+    company: cleanInput.company || "",
+    position: cleanInput.position || "",
+    location: cleanInput.location || "",
+    startDate: cleanInput.startDate || "",
+    endDate: cleanInput.endDate || "",
+    current: cleanInput.current || false,
+    description: cleanInput.description || "",
+    // FIX TS1109: Added the missing empty array expression after the ||
+    highlights: cleanInput.highlights || [],
+  });
+};
+
 
   const handleRemoveHighlight = (expId: string, index: number) => {
     const exp = experiences.find(e => e.id === expId);

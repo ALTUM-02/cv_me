@@ -215,19 +215,17 @@ export const UPDATE_QR_CONFIG = gql`
 
 
 // Use this for CREATE
+// Keep your existing one...
 export const CREATE_EXPERIENCE = gql`
   mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
     createExperience(cvId: $cvId, input: $input) {
       success
-      experience {
-        company
-        position
-      }
+      experience { company position }
     }
   }
 `;
 
-// Use this for UPDATE
+// ADD THIS NEW ONE BELOW IT:
 export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience($id: ID!, $input: ExperienceInput!) {
     updateExperience(id: $id, input: $input) {
@@ -235,10 +233,12 @@ export const UPDATE_EXPERIENCE = gql`
       experience {
         id
         company
+        position
       }
     }
   }
 `;
+
 
 
 

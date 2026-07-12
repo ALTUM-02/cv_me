@@ -22,6 +22,39 @@ export const ExperienceEditor: React.FC = () => {
 // const [updateExperience] = useMutation(UPDATE_EXPERIENCE);
 // Inside your ExperienceEditor.tsx component
 
+// Look for your existing form submission function
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  // 1. STACK YOUR DATA: Assuming 'formData' or 'experienceData' is your React state
+  // This line separates 'id' so it is not sent inside the input object
+  const { id, ...inputWithoutId } = formData; 
+
+  try {
+    // 2. RUN THE MUTATION
+    // If you are CREATING a new item:
+    await createExperience({
+      variables: {
+        cvId: currentCvId, // Pass your CV ID here
+        input: inputWithoutId, // Sent without the 'id' field
+      },
+    });
+
+    /* 
+    // OR if you are UPDATING an existing item:
+    await updateExperience({
+      variables: {
+        id: id,               // Sent as the required top-level ID
+        input: inputWithoutId, // Sent without the 'id' field
+      },
+    });
+    */
+
+    console.log("Success!");
+  } catch (error) {
+    console.error("Mutation error:", error);
+  }
+};
 
 
 

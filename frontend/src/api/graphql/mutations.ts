@@ -213,26 +213,22 @@ export const UPDATE_QR_CONFIG = gql`
   }
 `;
 
+
+// Use this for CREATE
 export const CREATE_EXPERIENCE = gql`
   mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
     createExperience(cvId: $cvId, input: $input) {
       success
-      # 'message' was removed from here because it's not in your backend class
       experience {
         id
         company
         position
-        location
-        startDate
-        endDate
-        current
-        description
-        highlights
       }
     }
   }
 `;
 
+// Use this for UPDATE
 export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience($id: ID!, $input: ExperienceInput!) {
     updateExperience(id: $id, input: $input) {
@@ -244,6 +240,7 @@ export const UPDATE_EXPERIENCE = gql`
     }
   }
 `;
+
 
 
 export const DELETE_EXPERIENCE = gql`

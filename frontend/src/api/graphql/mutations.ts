@@ -217,7 +217,7 @@ export const CREATE_EXPERIENCE = gql`
   mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
     createExperience(cvId: $cvId, input: $input) {
       success
-      message
+      # 'message' was removed from here because it's not in your backend class
       experience {
         id
         company

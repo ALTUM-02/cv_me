@@ -540,7 +540,7 @@ class CreateExperience(graphene.Mutation):
         if not user:
             return CreateExperience(success=False)
         
-        t
+        try:
             cv = CV.objects.get(id=cv_id, user=user)
             experience = Experience.objects.create(
                 cv=cv,

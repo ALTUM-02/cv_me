@@ -568,7 +568,7 @@ class UpdateExperience(graphene.Mutation):
     def mutate(self, info, id, input):
         user = get_user_from_token(info)
         if not user:
-            return UpdateExperience(success
+            return UpdateExperience(success)
         
         try:
             experience = Experience.objects.get(id=id, cv__user=user)

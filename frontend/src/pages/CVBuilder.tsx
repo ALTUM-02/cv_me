@@ -12,7 +12,7 @@ import { CustomizationPanel } from '../components/editor/CustomizationPanel';
 import { LinkedInImportModal } from '../components/editor/LinkedInImportModal';
 import { EmailShareModal } from '../components/editor/EmailShareModal';
 import { FontLibrary } from '../components/ui/FontLibrary';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '../store/authStore
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 type EditorTab = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'languages' | 'certifications' | 'customize';

@@ -6,7 +6,7 @@ import { ExperienceEditor } from '../components/editor/ExperienceEditor';
 import { EducationEditor } from '../components/editor/EducationEditor';
 import { SkillsEditor } from '../components/editor/SkillsEditor';
 import { LanguageEditor } from '../components/editor/LanguageEditor';
-import { ProjectEditor } from '../components/editor/ProjectEditor';
+import { ProjectEitor } from '../components/editor/ProjectEditor';
 import { CertificationEditor } from '../components/editor/CertificationEditor';
 import { CustomizationPanel } from '../components/editor/CustomizationPanel';
 import { LinkedInImportModal } from '../components/editor/LinkedInImportModal';

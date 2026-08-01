@@ -243,7 +243,9 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              <The
+              <ThemeToggle />
+
+
 
               {/* LinkedIn Import */}
               <button

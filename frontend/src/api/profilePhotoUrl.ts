@@ -8,7 +8,7 @@ export function profilePhotoUrl(value: string): string {
     return /^https?:\/\//i.test(value)
       ? url.toString()
       : `${url.pathname}${url.search}${url.hash}`;
-  } catch {
+  } catch 
     return value
   }
 }

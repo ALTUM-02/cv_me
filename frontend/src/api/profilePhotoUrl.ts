@@ -11,4 +11,4 @@ export function profilePhotoUrl(value: string): string {
   } catch {
     return value;
   }
-
+}

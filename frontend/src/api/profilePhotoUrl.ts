@@ -9,6 +9,6 @@ export function profilePhotoUrl(value: string): string {
       ? url.toString()
       : `${url.pathname}${url.search}${url.hash}`;
   } catch {
-    return valu
+    return value
   }
 }

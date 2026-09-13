@@ -6,7 +6,7 @@ export function profilePhotoUrl(value: string): string {
 
     url.pathname = `/api${url.pathname}`;
     return /^https?:\/\//i.test(value)
-      ? url.toString()
+      ? url.toString(
       : `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return value

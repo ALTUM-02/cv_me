@@ -5,7 +5,8 @@ export function profilePhotoUrl(value: string): string {
     if (!url.pathname.startsWith('/media/profile-photos/')) return value;
 
     url.pathname = `/api${url.pathname}`;
-    return /^https?:\/\//i.test(valu
+    return /^https?:\/\//i.test(value)
+      ? url.toString()
       : `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return value

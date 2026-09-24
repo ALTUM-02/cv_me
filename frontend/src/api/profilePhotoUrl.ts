@@ -10,5 +10,5 @@ export function profilePhotoUrl(value: string): string {
       : `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return value;
-  
+  }
 }

@@ -65,7 +65,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setErrors({});
     setSuccess('');
 
-    const result = await sendOTPEmail(formData.email);
+    const email = formData.email.trim().toLowerCase();
+    const result = await sendOTPEmail(email);
 
     if (!result.success) {
       setIsLoading(false);
@@ -85,7 +86,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setIsLoading(true);
 
     const result = await registerWithOtp({
-      email: formData.email,
+      email: formData.email.trim().toLowerCase(),
       code: otp,
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -108,7 +109,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setSuccess('');
     setIsLoading(true);
 
-    const result = await sendOTPEmail(formData.email);
+    const result = await sendOTPEmail(formData.email.trim().toLowerCase());
 
     if (!result.success) {
       setIsLoading(false);

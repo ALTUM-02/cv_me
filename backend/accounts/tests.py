@@ -1,12 +1,16 @@
-from django.test import TestCase
-from django.test import override_settings
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 from urllib.error import URLError
+
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 
 from accounts.models import OtpCode
 
 
 class SendVerificationCodeTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     @override_settings(EMAIL_API_KEY='test-key', EMAIL_API_SECRET='test-secret')
     @patch('accounts.views.urlopen')
     def test_sends_and_stores_server_generated_code(self, mock_urlopen):
@@ -17,7 +21,7 @@ class SendVerificationCodeTests(TestCase):
 
         response = self.client.post(
             '/api/email/verification-code/',
-            data='{"email":"new-user@example.com"}',
+            data='{"email":"New-User@Example.com"}',
             content_type='application/json',
         )
 
@@ -66,5 +70,3 @@ class SendVerificationCodeTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 401)
-
-# Create your tests here.

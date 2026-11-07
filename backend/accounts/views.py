@@ -24,6 +24,10 @@ class EmailDeliveryError(Exception):
     pass
 
 
+class EmailConfigurationError(EmailDeliveryError):
+    pass
+
+
 def _read_json_body(request):
     if len(request.body) > MAX_EMAIL_BODY_SIZE:
         return None, JsonResponse(
@@ -50,7 +54,7 @@ def _read_json_body(request):
 
 def _send_email(recipient, subject, html_body):
     if not settings.EMAIL_API_KEY or not settings.EMAIL_API_SECRET:
-        raise EmailDeliveryError('Email service is not configured.')
+        raise EmailConfigurationError('Email service is not configured.')
 
     request = Request(
         settings.EMAIL_API_URL,
@@ -103,7 +107,7 @@ def _validate_email_address(value):
 
 
 def _email_error_response(error):
-    status = 503 if str(error) == 'Email service is not configured.' else 502
+    status = 503 if isinstance(error, EmailConfigurationError) else 502
     return JsonResponse({'success': False, 'message': str(error)}, status=status)
 
 
@@ -131,7 +135,7 @@ def send_verification_code(request):
 
     if not settings.EMAIL_API_KEY or not settings.EMAIL_API_SECRET:
         return _email_error_response(
-            EmailDeliveryError('Email service is not configured.')
+            EmailConfigurationError('Email service is not configured.')
         )
 
     email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
@@ -207,6 +211,19 @@ def send_email(request):
         return JsonResponse(
             {'success': False, 'message': 'A valid recipient, subject, and email body are required.'},
             status=400,
+        )
+
+    send_limit_key = f'email-send-user:{user.pk}'
+    cache.add(send_limit_key, 0, timeout=60)
+    try:
+        send_count = cache.incr(send_limit_key)
+    except ValueError:
+        cache.set(send_limit_key, 1, timeout=60)
+        send_count = 1
+    if send_count > 10:
+        return JsonResponse(
+            {'success': False, 'message': 'Email sending limit reached. Try again shortly.'},
+            status=429,
         )
 
     try:

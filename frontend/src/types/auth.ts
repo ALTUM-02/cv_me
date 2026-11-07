@@ -19,7 +19,6 @@ export interface AuthState {
   token: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; message: string }>;
-  sendOtp: (email: string, code: string) => Promise<{ success: boolean; message: string }>;
   verifyOtp: (email: string, code: string) => Promise<{ success: boolean; message: string }>;
   registerWithOtp: (data: { email: string; code: string; firstName: string; lastName: string; password: string }) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
@@ -31,11 +30,6 @@ export interface RegisterData {
   password: string;
   firstName: string;
   lastName: string;
-}
-
-export interface SendOtpData {
-  email: string;
-  code: string;
 }
 
 export interface CVDocument {

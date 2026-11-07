@@ -44,6 +44,18 @@ export default defineConfig([
 
 ```
 
+## Email delivery
+
+Configure these variables on the Django backend, never in the frontend:
+
+- `EMAIL_API_KEY`
+- `EMAIL_API_SECRET`
+- `EMAIL_API_URL` (optional; defaults to the EmailAPI send endpoint)
+
+The registration endpoint generates, stores, and emails verification codes.
+Rotate any email API credentials that were previously committed or shared, and
+provide replacement values through the backend deployment environment.
+
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apolloClient, TOKEN_AUTH, REGISTER_USER, GET_CURRENT_USER, SEND_OTP, VERIFY_OTP, REGISTER_WITH_OTP } from '../api/graphql';
+import { apolloClient, TOKEN_AUTH, REGISTER_USER, GET_CURRENT_USER, VERIFY_OTP, REGISTER_WITH_OTP } from '../api/graphql';
 import type { AuthState, User, RegisterData } from '../types/auth';
 
 export const useAuthStore = create<AuthState>()(
@@ -85,28 +85,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       // ==================== OTP-BASED AUTH ====================
-
-      sendOtp: async (email: string, code: string) => {
-        try {
-          const { data } = await apolloClient.mutate({
-            mutation: SEND_OTP,
-            variables: { email, code },
-          });
-
-          if (data?.sendOtp?.success) {
-            return { success: true, message: data.sendOtp.message };
-          }
-
-          return { success: false, message: data?.sendOtp?.message || 'Failed to send OTP' };
-        } catch (error: unknown) {
-          console.error('Send OTP error:', error);
-          const err = error as { message?: string; networkError?: unknown };
-          if (err.networkError || (err.message && (err.message.includes('Network') || err.message.includes('fetch')))) {
-            return { success: false, message: 'Unable to connect to server. Please check if the backend is running.' };
-          }
-          return { success: false, message: err.message || 'Failed to send OTP' };
-        }
-      },
 
       verifyOtp: async (email: string, code: string) => {
         try {

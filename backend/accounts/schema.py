@@ -110,35 +110,6 @@ class TokenAuth(graphene.Mutation):
 
 # ==================== OTP-BASED AUTH ====================
 
-class SendOtp(graphene.Mutation):
-    """Store an OTP code for the given email. 
-    The frontend generates the OTP, sends it via email, and stores it here for verification."""
-    class Arguments:
-        email = graphene.String(required=True)
-        code = graphene.String(required=True)
-
-    success = graphene.Boolean()
-    message = graphene.String()
-
-    def mutate(self, info, email, code):
-        from accounts.models import OtpCode
-        
-        # Invalidate previous unused OTPs for this email
-        OtpCode.objects.filter(email=email, is_used=False).update(is_used=True)
-        
-        from django.utils import timezone
-        import datetime
-        
-        expires_at = timezone.now() + datetime.timedelta(minutes=10)
-        
-        OtpCode.objects.create(
-            email=email,
-            code=code,
-            expires_at=expires_at,
-        )
-        
-        return SendOtp(success=True, message='OTP stored successfully')
-
 
 class VerifyOtp(graphene.Mutation):
     """Verify OTP and return JWT token for existing users (login via OTP)."""
@@ -290,7 +261,6 @@ class Mutation(graphene.ObjectType):
     register_user = RegisterUser.Field()
     token_auth = TokenAuth.Field()
     # OTP-based
-    send_otp = SendOtp.Field()
     verify_otp = VerifyOtp.Field()
     register_with_otp = RegisterWithOtp.Field()
     # JWT

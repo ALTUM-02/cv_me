@@ -57,15 +57,6 @@ export const REFRESH_TOKEN = gql`
 
 // ==================== OTP MUTATIONS ====================
 
-export const SEND_OTP = gql`
-  mutation SendOtp($email: String!, $code: String!) {
-    sendOtp(email: $email, code: $code) {
-      success
-      message
-    }
-  }
-`;
-
 export const VERIFY_OTP = gql`
   mutation VerifyOtp($email: String!, $code: String!) {
     verifyOtp(email: $email, code: $code) {

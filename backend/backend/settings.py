@@ -158,6 +158,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_ORIGINS = config('CORS_ALLOW_ORIGINS', default='http://localhost:5173', cast=Csv())
 
+# Email API credentials must only be configured on the backend.
+EMAIL_API_URL = os.environ.get(
+    'EMAIL_API_URL',
+    'https://emailbackend.tarxemo.com/api/v1/send-email/',
+)
+EMAIL_API_KEY = os.environ.get('EMAIL_API_KEY', '')
+EMAIL_API_SECRET = os.environ.get('EMAIL_API_SECRET', '')
+
 # GraphQL Configuration
 GRAPHENE = {
     'SCHEMA': 'schema.schema',

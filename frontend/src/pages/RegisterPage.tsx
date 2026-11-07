@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { sendOTPEmail, generateOTP } from '../utils/email';
+import { sendOTPEmail } from '../utils/email';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 interface RegisterPageProps {
@@ -8,7 +8,7 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
-  const { isAuthenticated, user, loadUser, sendOtp, registerWithOtp } = useAuthStore();
+  const { isAuthenticated, user, loadUser, registerWithOtp } = useAuthStore();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -65,20 +65,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setErrors({});
     setSuccess('');
 
-    // Generate OTP code on frontend
-    const code = generateOTP();
+    const result = await sendOTPEmail(formData.email);
 
-    // Store OTP in backend
-    const backendResult = await sendOtp(formData.email, code);
-    
-    if (!backendResult.success) {
+    if (!result.success) {
       setIsLoading(false);
-      setErrors({ email: backendResult.message });
+      setErrors({ email: result.message });
       return;
     }
-
-    // Send OTP via email API
-    await sendOTPEmail(formData.email, code);
 
     setIsLoading(false);
     setStep('otp');
@@ -115,17 +108,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setSuccess('');
     setIsLoading(true);
 
-    const code = generateOTP();
+    const result = await sendOTPEmail(formData.email);
 
-    const backendResult = await sendOtp(formData.email, code);
-    
-    if (!backendResult.success) {
+    if (!result.success) {
       setIsLoading(false);
-      setErrors({ email: backendResult.message });
+      setErrors({ email: result.message });
       return;
     }
-
-    await sendOTPEmail(formData.email, code);
 
     setIsLoading(false);
     setSuccess('New verification code sent to your email!');

@@ -10,6 +10,9 @@ export interface EmailResponse {
   data?: Record<string, unknown>;
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
 const postEmailRequest = async (
   path: string,
   payload: Record<string, string>,
@@ -38,9 +41,9 @@ const postEmailRequest = async (
     };
   }
 
-  let data: Partial<EmailResponse>;
+  let responseData: unknown;
   try {
-    data = await response.json();
+    responseData = await response.json();
   } catch {
     return {
       success: false,
@@ -48,17 +51,28 @@ const postEmailRequest = async (
     };
   }
 
-  if (!response.ok || data.success !== true) {
+  if (!isRecord(responseData)) {
     return {
       success: false,
-      message: data.message || 'Failed to send email.',
+      message: 'The email service returned an invalid response.',
+    };
+  }
+
+  if (!response.ok || responseData.success !== true) {
+    return {
+      success: false,
+      message: typeof responseData.message === 'string'
+        ? responseData.message
+        : 'Failed to send email.',
     };
   }
 
   return {
     success: true,
-    message: data.message || 'Email sent successfully.',
-    data: data.data,
+    message: typeof responseData.message === 'string'
+      ? responseData.message
+      : 'Email sent successfully.',
+    data: isRecord(responseData.data) ? responseData.data : undefined,
   };
 };
 

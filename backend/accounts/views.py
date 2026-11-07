@@ -6,6 +6,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -124,8 +125,6 @@ def send_verification_code(request):
             {'success': False, 'message': 'Enter a valid email address.'},
             status=400,
         )
-
-    from django.contrib.auth import get_user_model
 
     if get_user_model().objects.filter(email__iexact=email).exists():
         return JsonResponse(

@@ -51,7 +51,7 @@ class SendVerificationCodeTests(TestCase):
 
     @override_settings(EMAIL_API_KEY='test-key', EMAIL_API_SECRET='test-secret')
     @patch('accounts.views.urlopen', side_effect=URLError('provider unavailable'))
-    def test_provider_failure_does_not_leave_a_usable_code(self, _mock_urlopen):
+    def test_provider_failure_does_not_leave_a_usable_code(self, mock_urlopen):
         response = self.client.post(
             '/api/email/verification-code/',
             data='{"email":"new-user@example.com"}',
@@ -59,6 +59,7 @@ class SendVerificationCodeTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 502)
+        mock_urlopen.assert_called_once()
         otp = OtpCode.objects.get(email='new-user@example.com')
         self.assertTrue(otp.is_used)
 

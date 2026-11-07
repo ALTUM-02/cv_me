@@ -37,8 +37,6 @@ function App() {
       if (currentPage === 'login' || currentPage === 'register') {
         setCurrentPage(user.role === 'admin' ? 'admin-dashboard' : 'user-dashboard');
       }
-    } else if (!isAuthenticated) {
-      setCurrentPage('login');
     }
   }, [currentPage, isAuthenticated, user]);
 

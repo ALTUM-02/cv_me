@@ -206,7 +206,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                       value={formData.firstName}
                       onChange={handleChange}
                       className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                      placeholder="John"
+                      placeholder="martin"
                     />
                   </div>
                   {errors.firstName && <p className="mt-1 text-xs text-red-400">{errors.firstName}</p>}
@@ -221,7 +221,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                       value={formData.lastName}
                       onChange={handleChange}
                       className={`relative w-full px-4 py-3 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300 ${errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                      placeholder="Doe"
+                      placeholder="jesus"
                     />
                   </div>
                   {errors.lastName && <p className="mt-1 text-xs text-red-400">{errors.lastName}</p>}

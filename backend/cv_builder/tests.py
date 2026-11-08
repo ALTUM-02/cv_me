@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
-from .models import CV, Certification
+from .models import CV, Certification, PersonalInfo
 
 
 class CertificationUploadTests(TestCase):
@@ -150,7 +150,7 @@ class CertificationUploadTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_profile_photo_can_be_removed(self):
-        personal_info = self.cv.personal_info
+        personal_info = PersonalInfo.objects.create(cv=self.cv)
         personal_info.photo_file.save(
             'profile.png',
             SimpleUploadedFile('profile.png', b'\x89PNG\r\n\x1a\nimage-data'),

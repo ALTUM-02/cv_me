@@ -2,6 +2,9 @@
 
 ## CV builder uploads and templates
 
+- In Personal Info, upload a PNG, JPEG, or WebP profile photo (up to 5 MB), replace
+  it, or remove it. The photo is stored with the CV and reappears when the CV is
+  loaded again.
 - In the Certifications editor, attach PDF, PNG, JPEG, or WebP files to an existing
   certification, or choose multiple files/a folder to create certification entries
   from the filenames. Uploads are limited to 10 MB per file and 20 files per batch.

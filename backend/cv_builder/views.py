@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 import logging
 import mimetypes
 from pathlib import PurePath

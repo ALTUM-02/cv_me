@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from tempfile import TemporaryDirectory
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,14 +8,20 @@ from django.test import TestCase, override_settings
 from .models import CV, Certification
 
 
-@override_settings(MEDIA_ROOT='/tmp/cv-me-test-media')
 class CertificationUploadTests(TestCase):
     def setUp(self):
+        self.media_directory = TemporaryDirectory()
+        self.addCleanup(self.media_directory.cleanup)
+        media_settings = override_settings(MEDIA_ROOT=self.media_directory.name)
+        media_settings.enable()
+        self.addCleanup(media_settings.disable)
         self.user = get_user_model().objects.create_user(
+            username='owner',
             email='owner@example.com',
             password='test-password',
         )
         self.other_user = get_user_model().objects.create_user(
+            username='other',
             email='other@example.com',
             password='test-password',
         )

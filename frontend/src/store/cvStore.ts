@@ -837,26 +837,6 @@ export const useCVStore = create<CVStore>()(
           ...state.cvData,
           certifications: state.cvData.certifications.filter((c) => c.id !== id),
         },
-
-        mergeUploadedCertifications: (certifications) => {
-          set((state) => {
-            const byId = new Map(
-              state.cvData.certifications.map((certification) => [certification.id, certification]),
-            );
-            certifications.forEach((certification) => {
-              byId.set(certification.id, {
-                ...byId.get(certification.id),
-                ...certification,
-              });
-            });
-            return {
-              cvData: {
-                ...state.cvData,
-                certifications: Array.from(byId.values()),
-              },
-            };
-          });
-        },
       }));
 
       if (currentCvId) {
@@ -869,6 +849,26 @@ export const useCVStore = create<CVStore>()(
           await get().loadCV(currentCvId);
         }
       }
+    },
+
+    mergeUploadedCertifications: (certifications) => {
+      set((state) => {
+        const byId = new Map(
+          state.cvData.certifications.map((certification) => [certification.id, certification]),
+        );
+        certifications.forEach((certification) => {
+          byId.set(certification.id, {
+            ...byId.get(certification.id),
+            ...certification,
+          });
+        });
+        return {
+          cvData: {
+            ...state.cvData,
+            certifications: Array.from(byId.values()),
+          },
+        };
+      });
     },
 
     // ==================== Projects ====================

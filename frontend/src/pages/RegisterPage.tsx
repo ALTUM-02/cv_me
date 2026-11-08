@@ -130,9 +130,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             </div>
           )}
 
-          {/* Step 1: Enter Details */}
-          {step === 'details' && (
-            <form onSubmit={handleSendOtp} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">First Name</label>
@@ -225,93 +223,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Sending Verification Code...
+                    Creating Account...
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    Send Verification Code
+                    Create Account
                   </>
                 )}
               </button>
-            </form>
-          )}
-
-          {/* Step 2: Enter OTP */}
-          {step === 'otp' && (
-            <form onSubmit={handleVerifyOtp} className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/50">
-                  <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  We sent a verification code to<br />
-                  <span className="font-semibold text-gray-950 dark:text-white">{formData.email}</span>
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Verification Code</label>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-focus-within:opacity-75 transition-all duration-300 blur"></div>
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className={`relative w-full px-4 py-4 border rounded-2xl bg-white dark:bg-gray-700 text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-3xl tracking-[0.5em] font-mono ${errors.otp ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-                    placeholder="000000"
-                    maxLength={6}
-                  />
-                </div>
-                {errors.otp && <p className="mt-1 text-xs text-red-400 text-center">{errors.otp}</p>}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading || otp.length !== 6}
-                className="w-full py-4 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-emerald-500/50"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Verify & Create Account
-                  </>
-                )}
-              </button>
-
-              <div className="flex justify-between items-center gap-4 text-sm">
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={countdown > 0 || isLoading}
-                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setStep('details'); setOtp(''); setErrors({}); setSuccess(''); }}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
-                >
-                  ← Edit details
-                </button>
-              </div>
-            </form>
-          )}
+          </form>
 
           <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700/50">
             <p className="text-center text-gray-600 dark:text-gray-400">

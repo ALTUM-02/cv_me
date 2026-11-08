@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from graphql_jwt.shortcuts import get_token
 from graphql_jwt import relay as jwt_relay
 
@@ -58,7 +60,16 @@ class RegisterUser(graphene.Mutation):
     user = graphene.Field(UserType)
     
     def mutate(self, info, email, password, first_name, last_name):
-        if User.objects.filter(email=email).exists():
+        email = email.strip().lower()
+        try:
+            validate_email(email)
+        except ValidationError:
+            return RegisterUser(success=False, message='Enter a valid email address')
+
+        if len(password) < 6:
+            return RegisterUser(success=False, message='Password must be at least 6 characters')
+
+        if User.objects.filter(email__iexact=email).exists():
             return RegisterUser(success=False, message='Email already registered')
         
         user = User(
@@ -90,7 +101,7 @@ class TokenAuth(graphene.Mutation):
     refresh_expires_in = graphene.Int()
     
     def mutate(self, info, email, password):
-        user = User.objects.filter(email=email).first()
+        user = User.objects.filter(email__iexact=email.strip()).first()
         if not user:
             return TokenAuth(token=None, payload=None, refresh_expires_in=0)
         

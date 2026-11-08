@@ -1,12 +1,9 @@
-import hashlib
-import html
 import json
 import logging
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -15,7 +12,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from accounts.authentication import JWTAuthentication
-from accounts.models import OtpCode
 
 logger = logging.getLogger(__name__)
 MAX_EMAIL_BODY_SIZE = 128 * 1024
@@ -110,76 +106,6 @@ def _validate_email_address(value):
 def _email_error_response(error):
     status = 503 if isinstance(error, EmailConfigurationError) else 502
     return JsonResponse({'success': False, 'message': str(error)}, status=status)
-
-
-@csrf_exempt
-@require_POST
-def send_verification_code(request):
-    data, error_response = _read_json_body(request)
-    if error_response:
-        return error_response
-
-    email = _validate_email_address(data.get('email'))
-    if not email:
-        return JsonResponse(
-            {'success': False, 'message': 'Enter a valid email address.'},
-            status=400,
-        )
-
-    if get_user_model().objects.filter(email__iexact=email).exists():
-        return JsonResponse(
-            {'success': False, 'message': 'Email already registered.'},
-            status=409,
-        )
-
-    if not settings.EMAIL_API_KEY or not settings.EMAIL_API_SECRET:
-        return _email_error_response(
-            EmailConfigurationError('Email service is not configured.')
-        )
-
-    email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
-    ip_hash = hashlib.sha256(
-        request.META.get('REMOTE_ADDR', 'unknown').encode('utf-8')
-    ).hexdigest()
-    email_limit_key = f'verification-email:{email_hash}'
-    ip_limit_key = f'verification-ip:{ip_hash}'
-
-    if not cache.add(email_limit_key, True, timeout=60):
-        return JsonResponse(
-            {'success': False, 'message': 'Please wait before requesting another code.'},
-            status=429,
-        )
-    if not cache.add(ip_limit_key, True, timeout=60):
-        cache.delete(email_limit_key)
-        return JsonResponse(
-            {'success': False, 'message': 'Please wait before requesting another code.'},
-            status=429,
-        )
-
-    otp = OtpCode.generate_for_email(email)
-    code = html.escape(otp.code)
-    email_html = f'''
-        <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;padding:24px;color:#1f2937">
-          <h1 style="color:#2563eb">ResumeForge verification code</h1>
-          <p>Use this code to complete your registration:</p>
-          <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#1d4ed8">{code}</p>
-          <p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>
-        </div>
-    '''
-
-    try:
-        _send_email(email, 'ResumeForge - Your Verification Code', email_html)
-    except EmailDeliveryError as error:
-        otp.is_used = True
-        otp.save(update_fields=['is_used'])
-        cache.delete(email_limit_key)
-        cache.delete(ip_limit_key)
-        return _email_error_response(error)
-
-    return JsonResponse({
-        'success': True,
-        'message': 'Verification code sent. Check your email.',
-    })
 
 
 @csrf_exempt

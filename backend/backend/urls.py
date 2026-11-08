@@ -23,16 +23,11 @@ except Exception:
     GraphQLView = None
 from django.conf.urls.static import static 
 from django.conf import settings
-from accounts.views import send_email, send_verification_code
+from accounts.views import send_email
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/email/send/', send_email, name='send_email'),
-    path(
-        'api/email/verification-code/',
-        send_verification_code,
-        name='send_verification_code',
-    ),
 ]
 
 if GraphQLView is not None:

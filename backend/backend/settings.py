@@ -9,14 +9,42 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import os
 from pathlib import Path
 
 from datetime import timedelta
-from decouple import AutoConfig, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-env_config = AutoConfig(search_path=BASE_DIR)
+
+
+def _read_env_file(path):
+    values = {}
+    if not path.is_file():
+        return values
+
+    for line in path.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        if line.startswith('export '):
+            line = line[7:].lstrip()
+        key, separator, value = line.partition('=')
+        if not separator:
+            continue
+
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
+            value = value[1:-1]
+        values[key.strip()] = value
+    return values
+
+
+_env_file_values = _read_env_file(BASE_DIR / '.env')
+
+
+def env_value(name, default=''):
+    return os.environ.get(name, _env_file_values.get(name, default))
 
 
 # Quick-start development settings - unsuitable for production
@@ -148,19 +176,22 @@ AUTH_USER_MODEL = 'accounts.User'
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_ORIGINS = env_config(
-    'CORS_ALLOW_ORIGINS',
-    default='http://localhost:5173',
-    cast=Csv(),
-)
+CORS_ALLOW_ORIGINS = [
+    origin.strip()
+    for origin in env_value(
+        'CORS_ALLOW_ORIGINS',
+        'http://localhost:5173',
+    ).split(',')
+    if origin.strip()
+]
 
 # Email API credentials must only be configured on the backend.
-EMAIL_API_URL = env_config(
+EMAIL_API_URL = env_value(
     'EMAIL_API_URL',
-    default='https://emailbackend.tarxemo.com/api/v1/send-email/',
+    'https://emailbackend.tarxemo.com/api/v1/send-email/',
 )
-EMAIL_API_KEY = env_config('EMAIL_API_KEY', default='')
-EMAIL_API_SECRET = env_config('EMAIL_API_SECRET', default='')
+EMAIL_API_KEY = env_value('EMAIL_API_KEY')
+EMAIL_API_SECRET = env_value('EMAIL_API_SECRET')
 
 # GraphQL Configuration
 GRAPHENE = {

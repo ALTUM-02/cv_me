@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { sendOTPEmail } from '../utils/email';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 interface RegisterPageProps {
@@ -8,7 +7,7 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
-  const { isAuthenticated, user, loadUser, registerWithOtp } = useAuthStore();
+  const { isAuthenticated, user, loadUser, register } = useAuthStore();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -17,12 +16,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     password: '',
     confirmPassword: '',
   });
-  const [otp, setOtp] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<'details' | 'otp'>('details');
-  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     loadUser();
@@ -33,13 +29,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
       onNavigate('user-dashboard');
     }
   }, [isAuthenticated, user, onNavigate]);
-
-  // Countdown timer for OTP resend
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [countdown]);
 
   const validateDetails = () => {
     const newErrors: { [key: string]: string } = {};
@@ -56,7 +45,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateDetails()) return;
@@ -65,29 +54,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     setErrors({});
     setSuccess('');
 
-    const email = formData.email.trim().toLowerCase();
-    const result = await sendOTPEmail(email);
-
-    if (!result.success) {
-      setIsLoading(false);
-      setErrors({ email: result.message });
-      return;
-    }
-
-    setIsLoading(false);
-    setStep('otp');
-    setSuccess('Verification code sent to your email! Check your inbox.');
-    setCountdown(60);
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-
-    const result = await registerWithOtp({
+    const result = await register({
       email: formData.email.trim().toLowerCase(),
-      code: otp,
       firstName: formData.firstName,
       lastName: formData.lastName,
       password: formData.password,
@@ -97,29 +65,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
 
     if (result.success) {
       setSuccess('Account created successfully! Redirecting...');
-      // The useEffect above will handle navigation to user-dashboard
     } else {
-      setErrors({ otp: result.message });
+      setErrors({ general: result.message });
     }
-  };
-
-  const handleResendOtp = async () => {
-    if (countdown > 0) return;
-    setErrors({});
-    setSuccess('');
-    setIsLoading(true);
-
-    const result = await sendOTPEmail(formData.email.trim().toLowerCase());
-
-    if (!result.success) {
-      setIsLoading(false);
-      setErrors({ email: result.message });
-      return;
-    }
-
-    setIsLoading(false);
-    setSuccess('New verification code sent to your email!');
-    setCountdown(60);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

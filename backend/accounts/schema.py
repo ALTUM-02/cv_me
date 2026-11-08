@@ -108,106 +108,6 @@ class TokenAuth(graphene.Mutation):
         )
 
 
-# ==================== OTP-BASED AUTH ====================
-
-
-class VerifyOtp(graphene.Mutation):
-    """Verify OTP and return JWT token for existing users (login via OTP)."""
-    class Arguments:
-        email = graphene.String(required=True)
-        code = graphene.String(required=True)
-
-    success = graphene.Boolean()
-    message = graphene.String()
-    token = graphene.String()
-    user = graphene.Field(UserType)
-
-    def mutate(self, info, email, code):
-        from accounts.models import OtpCode
-        otp = OtpCode.objects.filter(
-            email=email, code=code, is_used=False
-        ).order_by('-created_at').first()
-
-        if not otp:
-            return VerifyOtp(success=False, message='Invalid or expired OTP')
-
-        if otp.is_expired():
-            otp.is_used = True
-            otp.save()
-            return VerifyOtp(success=False, message='OTP has expired')
-
-        # Mark OTP as used
-        otp.is_used = True
-        otp.save()
-
-        # Get or create user
-        user = User.objects.filter(email=email).first()
-        if not user:
-            return VerifyOtp(success=False, message='No account found. Please register first.')
-
-        token = get_token(user)
-        return VerifyOtp(success=True, message='Login successful', token=token, user=user)
-
-
-class RegisterWithOtp(graphene.Mutation):
-    """Register a new user after OTP verification. Creates account with password."""
-    class Arguments:
-        email = graphene.String(required=True)
-        code = graphene.String(required=True)
-        first_name = graphene.String(required=True)
-        last_name = graphene.String(required=True)
-        password = graphene.String(required=True)
-
-    success = graphene.Boolean()
-    message = graphene.String()
-    token = graphene.String()
-    user = graphene.Field(UserType)
-
-    def mutate(self, info, email, code, first_name, last_name, password):
-        from accounts.models import OtpCode
-
-        # Check if user already exists
-        if User.objects.filter(email=email).exists():
-            return RegisterWithOtp(success=False, message='Email already registered')
-
-        # Verify OTP
-        otp = OtpCode.objects.filter(
-            email=email, code=code, is_used=False
-        ).order_by('-created_at').first()
-
-        if not otp:
-            return RegisterWithOtp(success=False, message='Invalid or expired OTP')
-
-        if otp.is_expired():
-            otp.is_used = True
-            otp.save()
-            return RegisterWithOtp(success=False, message='OTP has expired')
-
-        # Mark OTP as used
-        otp.is_used = True
-        otp.save()
-
-        # Create user with password
-        user = User(
-            email=email,
-            username=email,
-            first_name=first_name,
-            last_name=last_name,
-            role='user',
-            is_active=True,
-        )
-        user.set_password(password)
-        user.save()
-
-        token = get_token(user)
-        return RegisterWithOtp(
-            success=True,
-            message='Registration successful',
-            token=token,
-            user=user,
-        )
-
-
 # ==================== ADMIN MUTATIONS ====================
 
 class DeleteUser(graphene.Mutation):
@@ -257,12 +157,8 @@ class UpdateUserRole(graphene.Mutation):
 # ==================== ROOT MUTATION ====================
 
 class Mutation(graphene.ObjectType):
-    # Password-based
     register_user = RegisterUser.Field()
     token_auth = TokenAuth.Field()
-    # OTP-based
-    verify_otp = VerifyOtp.Field()
-    register_with_otp = RegisterWithOtp.Field()
     # JWT
     verify_token = jwt_relay.Verify.Field()
     refresh_token = jwt_relay.Refresh.Field()

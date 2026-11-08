@@ -60,9 +60,20 @@ class LanguageType(DjangoObjectType):
 
 
 class CertificationType(DjangoObjectType):
+    document_url = graphene.String()
+    document_name = graphene.String()
+
     class Meta:
         model = Certification
         fields = '__all__'
+
+    def resolve_document_url(self, info):
+        if not self.document:
+            return None
+        return f'/api/certifications/{self.pk}/document/'
+
+    def resolve_document_name(self, info):
+        return self.document.name.rsplit('/', 1)[-1] if self.document else None
 
 
 class ProjectType(DjangoObjectType):

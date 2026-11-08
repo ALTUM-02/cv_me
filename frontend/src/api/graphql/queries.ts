@@ -92,6 +92,8 @@ export const GET_CV = gql`
         issuer
         date
         url
+        documentUrl
+        documentName
       }
       projects {
         id

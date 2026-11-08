@@ -14,6 +14,7 @@ import { EmailShareModal } from '../components/editor/EmailShareModal';
 import { FontLibrary } from '../components/ui/FontLibrary';
 import { useAuthStore } from '../store/authStore';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { googleFontsStylesheet } from '../utils/fonts';
 
 type EditorTab = 'personal' | 'experience' | 'education' | 'skills' | 'projects' | 'languages' | 'certifications' | 'customize';
 
@@ -124,6 +125,10 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
   const handlePrint = () => {
     const printContent = document.getElementById('cv-preview');
     if (printContent) {
+      const fontStylesheet = googleFontsStylesheet([
+        customization.fonts.heading,
+        customization.fonts.body,
+      ]);
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(`
@@ -131,7 +136,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
           <html>
           <head>
             <title>${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName} - CV</title>
-            <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@400;600&family=Merriweather:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&family=Poppins:wght@400;600;700&family=Nunito:wght@400;600&family=Raleway:wght@400;600;700&family=Roboto:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=Cormorant+Garamond:wght@400;600;700&family=EB+Garamond:wght@400;500;700&family=Source+Serif+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+            <link href="${fontStylesheet}" rel="stylesheet">
             <style>
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
               body { margin: 0; padding: 0; }
@@ -157,12 +162,16 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
   const handleDownloadHTML = () => {
     const printContent = document.getElementById('cv-preview');
     if (printContent) {
+      const fontStylesheet = googleFontsStylesheet([
+        customization.fonts.heading,
+        customization.fonts.body,
+      ]);
       const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
           <title>${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName} - CV</title>
-          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@400;600&family=Merriweather:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&family=Poppins:wght@400;600;700&family=Nunito:wght@400;600&family=Raleway:wght@400;600;700&family=Roboto:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=Cormorant+Garamond:wght@400;600;700&family=EB+Garamond:wght@400;500;700&family=Source+Serif+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+          <link href="${fontStylesheet}" rel="stylesheet">
           <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
           <style>
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }

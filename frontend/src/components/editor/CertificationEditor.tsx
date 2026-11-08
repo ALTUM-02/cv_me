@@ -1,13 +1,121 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useCVStore } from '../../store/cvStore';
+import {
+  downloadCertificationDocument,
+  uploadCertificationFiles,
+} from '../../api/certifications';
 
 export const CertificationEditor: React.FC = () => {
-  const { cvData, addCertification, updateCertification, removeCertification } = useCVStore();
+  const {
+    cvData,
+    currentCvId,
+    addCertification,
+    updateCertification,
+    removeCertification,
+    mergeUploadedCertifications,
+  } = useCVStore();
   const { certifications } = cvData;
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (files: File[], certificationId?: string) => {
+    if (!files.length) return;
+    setUploading(true);
+    setUploadError('');
+    setUploadMessage('');
+    try {
+      const uploaded = await uploadCertificationFiles(files, {
+        cvId: certificationId ? undefined : currentCvId || undefined,
+        certificationId,
+      });
+      mergeUploadedCertifications(uploaded);
+      if (uploaded[0]) setExpandedId(uploaded[0].id);
+      setUploadMessage(
+        `${uploaded.length} certificate${uploaded.length === 1 ? '' : 's'} uploaded.`,
+      );
+    } catch (error) {
+      setUploadError(
+        error instanceof Error ? error.message : 'Certificate upload failed.',
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelection = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    certificationId?: string,
+  ) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    await handleUpload(files, certificationId);
+  };
+
+  const handleDownload = async (url: string) => {
+    setUploadError('');
+    try {
+      await downloadCertificationDocument(url);
+    } catch (error) {
+      setUploadError(
+        error instanceof Error ? error.message : 'Certificate download failed.',
+      );
+    }
+  };
 
   return (
     <div className="space-y-4">
+      <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+        <h3 className="font-medium text-blue-900">Upload certificate documents</h3>
+        <p className="mt-1 text-sm text-blue-800">
+          Select PDF or image files, or choose a folder. Folder uploads create one
+          certification per file. Maximum 20 files, 10 MB each.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {uploading ? 'Uploading…' : 'Choose files'}
+          </button>
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => folderInputRef.current?.click()}
+            className="rounded-lg border border-blue-300 bg-white px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+          >
+            Choose folder
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp"
+            onChange={(event) => void handleFileSelection(event)}
+            className="hidden"
+          />
+          <input
+            ref={(element) => {
+              folderInputRef.current = element;
+              element?.setAttribute('webkitdirectory', '');
+              element?.setAttribute('directory', '');
+            }}
+            type="file"
+            multiple
+            accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp"
+            onChange={(event) => void handleFileSelection(event)}
+            className="hidden"
+          />
+        </div>
+        {uploadError && <p role="alert" className="mt-2 text-sm text-red-700">{uploadError}</p>}
+        {uploadMessage && <p role="status" className="mt-2 text-sm text-green-700">{uploadMessage}</p>}
+      </div>
+
       {certifications.map((cert) => (
         <div 
           key={cert.id}
@@ -87,6 +195,36 @@ export const CertificationEditor: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="https://www.coursera.org/account/accomplishments/..."
                 />
+              </div>
+
+              <div>
+                <p className="block text-sm font-medium text-gray-700 mb-1">Certificate file</p>
+                {cert.documentName ? (
+                  <div className="mb-2 flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2">
+                    <span className="truncate text-sm text-gray-700">{cert.documentName}</span>
+                    {cert.documentUrl && (
+                      <button
+                        type="button"
+                        onClick={() => void handleDownload(cert.documentUrl!)}
+                        className="shrink-0 text-sm font-medium text-blue-600 hover:text-blue-800"
+                      >
+                        Download
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mb-2 text-xs text-gray-500">No file attached</p>
+                )}
+                <label className="inline-flex cursor-pointer items-center rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  {uploading ? 'Uploading…' : cert.documentName ? 'Replace file' : 'Attach file'}
+                  <input
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp"
+                    disabled={uploading}
+                    onChange={(event) => void handleFileSelection(event, cert.id)}
+                    className="hidden"
+                  />
+                </label>
               </div>
             </div>
           )}

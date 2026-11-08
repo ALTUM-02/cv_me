@@ -98,6 +98,8 @@ export interface GraphQLCertification {
   issuer: string;
   date: string;
   url?: string;
+  documentUrl?: string;
+  documentName?: string;
 }
 
 export interface GraphQLProject {

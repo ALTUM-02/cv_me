@@ -1,6 +1,29 @@
 import React, { useState } from 'react';
 import { useCVStore } from '../../store/cvStore';
 
+const skillTemplates = [
+  {
+    name: 'Frontend Developer',
+    skills: ['TypeScript', 'React', 'HTML', 'CSS', 'Accessibility', 'Responsive Design'],
+  },
+  {
+    name: 'Backend Developer',
+    skills: ['API Design', 'SQL', 'Python', 'Node.js', 'Authentication', 'Testing'],
+  },
+  {
+    name: 'Data Analyst',
+    skills: ['SQL', 'Python', 'Data Visualization', 'Excel', 'Statistics', 'Reporting'],
+  },
+  {
+    name: 'Project Manager',
+    skills: ['Project Planning', 'Risk Management', 'Agile', 'Communication', 'Budgeting'],
+  },
+  {
+    name: 'UI/UX Designer',
+    skills: ['Figma', 'Prototyping', 'User Research', 'Wireframing', 'Accessibility'],
+  },
+];
+
 const skillCategories = [
   'Technical',
   'Soft Skills',
@@ -17,6 +40,7 @@ export const SkillsEditor: React.FC = () => {
   const { skills } = cvData;
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState('Technical');
+  const [templateMessage, setTemplateMessage] = useState('');
 
   const handleAddSkill = () => {
     if (newSkillName.trim()) {
@@ -27,6 +51,24 @@ export const SkillsEditor: React.FC = () => {
       });
       setNewSkillName('');
     }
+  };
+
+  const handleApplyTemplate = async (templateName: string) => {
+    const template = skillTemplates.find((item) => item.name === templateName);
+    if (!template) return;
+
+    const existingNames = new Set(skills.map((skill) => skill.name.trim().toLowerCase()));
+    const missingSkills = template.skills.filter(
+      (name) => !existingNames.has(name.toLowerCase()),
+    );
+    for (const name of missingSkills) {
+      await addSkill({ name, category: 'Technical', level: 50 });
+    }
+    setTemplateMessage(
+      missingSkills.length
+        ? `Added ${missingSkills.length} skills from ${template.name}.`
+        : 'All skills in this template are already on your CV.',
+    );
   };
 
   const handleSkillLevelChange = (id: string, level: number) => {
@@ -78,6 +120,26 @@ export const SkillsEditor: React.FC = () => {
             </svg>
           </button>
         </div>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 p-4">
+        <h4 className="mb-1 font-medium text-gray-700">Role-based skill templates</h4>
+        <p className="mb-3 text-xs text-gray-500">
+          Add suggested skills without duplicating skills already on your CV.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {skillTemplates.map((template) => (
+            <button
+              key={template.name}
+              type="button"
+              onClick={() => void handleApplyTemplate(template.name)}
+              className="rounded-full border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50"
+            >
+              {template.name}
+            </button>
+          ))}
+        </div>
+        {templateMessage && <p role="status" className="mt-2 text-xs text-green-700">{templateMessage}</p>}
       </div>
 
       {/* Skills by Category */}

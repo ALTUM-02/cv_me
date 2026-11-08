@@ -24,10 +24,17 @@ except Exception:
 from django.conf.urls.static import static 
 from django.conf import settings
 from accounts.views import send_email
+from cv_builder.views import download_certification_document, upload_certifications
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/email/send/', send_email, name='send_email'),
+    path('api/certifications/upload/', upload_certifications, name='upload_certifications'),
+    path(
+        'api/certifications/<int:certification_id>/document/',
+        download_certification_document,
+        name='download_certification_document',
+    ),
 ]
 
 if GraphQLView is not None:

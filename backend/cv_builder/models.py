@@ -151,6 +151,7 @@ class Certification(models.Model):
     issuer = models.CharField(max_length=200, blank=True, default='')
     date = models.CharField(max_length=20, blank=True, default='')
     url = models.URLField(max_length=500, blank=True, null=True)
+    document = models.FileField(upload_to='certificates/%Y/%m/', blank=True, null=True)
     order = models.IntegerField(default=0)
     
     class Meta:
@@ -159,6 +160,13 @@ class Certification(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.issuer}"
+
+    def delete(self, *args, **kwargs):
+        document = self.document
+        result = super().delete(*args, **kwargs)
+        if document:
+            document.delete(save=False)
+        return result
 
 
 class Project(models.Model):

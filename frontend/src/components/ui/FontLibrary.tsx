@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { googleFontsStylesheet } from '../../utils/fonts';
 
 interface FontLibraryProps {
   isOpen: boolean;
@@ -74,12 +75,32 @@ export const FontLibrary: React.FC<FontLibraryProps> = ({
   const [fontTarget, setFontTarget] = useState<'heading' | 'body'>('heading');
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const linkId = 'cv-font-library-stylesheet';
+    let stylesheet = document.getElementById(linkId) as HTMLLinkElement | null;
+    if (!stylesheet) {
+      stylesheet = document.createElement('link');
+      stylesheet.id = linkId;
+      stylesheet.rel = 'stylesheet';
+      document.head.appendChild(stylesheet);
+    }
+    stylesheet.href = googleFontsStylesheet(
+      fontCategories.flatMap((item) => item.fonts.map((font) => font.name)),
+    );
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const category = fontCategories.find(c => c.name === selectedCategory);
-  const filteredFonts = category?.fonts.filter(f => 
-    f.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const search = searchQuery.trim().toLowerCase();
+  const filteredFonts = search
+    ? fontCategories.flatMap((item) =>
+        item.fonts
+          .filter((font) => font.name.toLowerCase().includes(search))
+          .map((font) => ({ ...font, categoryName: item.name })),
+      )
+    : (category?.fonts.map((font) => ({ ...font, categoryName: selectedCategory })) || []);
 
   const handleSelectFont = (fontName: string) => {
     onSelectFont(fontName, fontTarget);
@@ -169,7 +190,7 @@ export const FontLibrary: React.FC<FontLibraryProps> = ({
           {/* Font Grid */}
           <div className="flex-1 p-4 overflow-y-auto">
             <p className="text-sm text-gray-500 mb-4">
-              {category?.description} • {filteredFonts.length} fonts
+              {search ? `Matching fonts across all categories • ${filteredFonts.length} fonts` : `${category?.description} • ${filteredFonts.length} fonts`}
             </p>
             <div className="grid grid-cols-1 gap-3">
               {filteredFonts.map((font) => {
@@ -189,6 +210,7 @@ export const FontLibrary: React.FC<FontLibraryProps> = ({
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-900">{font.name}</span>
+                      {search && <span className="text-xs text-gray-500">{font.categoryName}</span>}
                       {isSelected && (
                         <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
                           Selected

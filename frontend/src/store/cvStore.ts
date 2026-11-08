@@ -26,6 +26,7 @@ import {
   DELETE_PROJECT,
 } from '../api/graphql/mutations';
 import { GET_ALL_CVS as GET_ALL_CVS_QUERY, GET_CV } from '../api/graphql/queries';
+import { getTemplate } from '../data/templates';
 import type {
   CVData,
   CustomizationOptions,
@@ -131,6 +132,7 @@ interface CVStore {
   addCertification: (cert?: Partial<Certification>) => Promise<string>;
   updateCertification: (id: string, cert: Partial<Certification>) => Promise<void>;
   removeCertification: (id: string) => Promise<void>;
+  mergeUploadedCertifications: (certifications: Certification[]) => void;
   
   addProject: (proj?: Partial<Project>) => Promise<string>;
   updateProject: (id: string, proj: Partial<Project>) => Promise<void>;
@@ -206,6 +208,8 @@ const convertGraphQLCVToLocal = (cv: GraphQLCV): { cvData: CVData; customization
       issuer: c.issuer || '',
       date: c.date || '',
       url: c.url || undefined,
+      documentUrl: c.documentUrl || undefined,
+      documentName: c.documentName || undefined,
     })),
     projects: (cv.projects || []).map((p) => ({
       id: p.id,
@@ -833,6 +837,26 @@ export const useCVStore = create<CVStore>()(
           ...state.cvData,
           certifications: state.cvData.certifications.filter((c) => c.id !== id),
         },
+
+        mergeUploadedCertifications: (certifications) => {
+          set((state) => {
+            const byId = new Map(
+              state.cvData.certifications.map((certification) => [certification.id, certification]),
+            );
+            certifications.forEach((certification) => {
+              byId.set(certification.id, {
+                ...byId.get(certification.id),
+                ...certification,
+              });
+            });
+            return {
+              cvData: {
+                ...state.cvData,
+                certifications: Array.from(byId.values()),
+              },
+            };
+          });
+        },
       }));
 
       if (currentCvId) {
@@ -962,7 +986,12 @@ export const useCVStore = create<CVStore>()(
     },
 
     setTemplate: async (templateId) => {
-      await get().updateCustomization({ templateId });
+      const template = getTemplate(templateId);
+      await get().updateCustomization({
+        templateId,
+        colors: template.colors,
+        fonts: template.fonts,
+      });
     },
 
     updateQRConfig: async (config) => {

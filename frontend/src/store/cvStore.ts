@@ -109,6 +109,7 @@ interface CVStore {
 
   // Actions
   updatePersonalInfo: (info: Partial<CVData['personalInfo']>) => Promise<void>;
+  setProfilePhoto: (photo?: string) => void;
   
   addExperience: (exp?: Partial<Experience>) => Promise<string>;
   updateExperience: (id: string, exp: Partial<Experience>) => Promise<void>;
@@ -358,6 +359,15 @@ export const useCVStore = create<CVStore>()(
           await get().loadCV(currentCvId);
         }
       }
+    },
+
+    setProfilePhoto: (photo) => {
+      set((state) => ({
+        cvData: {
+          ...state.cvData,
+          personalInfo: { ...state.cvData.personalInfo, photo },
+        },
+      }));
     },
 
     // ==================== Experience ====================

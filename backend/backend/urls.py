@@ -24,12 +24,27 @@ except Exception:
 from django.conf.urls.static import static 
 from django.conf import settings
 from accounts.views import send_email
-from cv_builder.views import download_certification_document, upload_certifications
+from cv_builder.views import (
+    download_certification_document,
+    remove_profile_photo,
+    upload_certifications,
+    upload_profile_photo,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/email/send/', send_email, name='send_email'),
     path('api/certifications/upload/', upload_certifications, name='upload_certifications'),
+    path(
+        'api/cvs/<int:cv_id>/profile-photo/',
+        upload_profile_photo,
+        name='upload_profile_photo',
+    ),
+    path(
+        'api/cvs/<int:cv_id>/profile-photo/remove/',
+        remove_profile_photo,
+        name='remove_profile_photo',
+    ),
     path(
         'api/certifications/<int:certification_id>/document/',
         download_certification_document,

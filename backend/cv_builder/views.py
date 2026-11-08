@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from accounts.authentication import JWTAuthentication
-from .models import CV, Certification
+from .models import CV, Certification, PersonalInfo
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,13 @@ MAX_CERTIFICATE_BATCH_COUNT = 20
 MAX_CERTIFICATE_BATCH_SIZE = 50 * 1024 * 1024
 CERTIFICATE_SIGNATURES = {
     '.pdf': lambda data: data.startswith(b'%PDF-'),
+    '.png': lambda data: data.startswith(b'\x89PNG\r\n\x1a\n'),
+    '.jpg': lambda data: data.startswith(b'\xff\xd8\xff'),
+    '.jpeg': lambda data: data.startswith(b'\xff\xd8\xff'),
+    '.webp': lambda data: data.startswith(b'RIFF') and data[8:12] == b'WEBP',
+}
+MAX_PROFILE_PHOTO_SIZE = 5 * 1024 * 1024
+PROFILE_PHOTO_SIGNATURES = {
     '.png': lambda data: data.startswith(b'\x89PNG\r\n\x1a\n'),
     '.jpg': lambda data: data.startswith(b'\xff\xd8\xff'),
     '.jpeg': lambda data: data.startswith(b'\xff\xd8\xff'),
@@ -57,6 +64,84 @@ def _serialize_certification(certification, request):
         ),
         'documentName': document_name,
     }
+
+
+def _serialize_profile_photo(personal_info):
+    return {'photo': personal_info.photo_file.url if personal_info.photo_file else ''}
+
+
+@csrf_exempt
+@require_POST
+def upload_profile_photo(request, cv_id):
+    user = _authenticated_user(request)
+    if user is None:
+        return JsonResponse({'message': 'Authentication required.'}, status=401)
+
+    uploaded_file = request.FILES.get('photo')
+    if uploaded_file is None:
+        return JsonResponse({'message': 'Select an image to upload.'}, status=400)
+    if uploaded_file.size > MAX_PROFILE_PHOTO_SIZE:
+        return JsonResponse({'message': 'Profile photos must be 5 MB or smaller.'}, status=400)
+
+    suffix = PurePath(uploaded_file.name).suffix.lower()
+    signature_check = PROFILE_PHOTO_SIGNATURES.get(suffix)
+    if signature_check is None:
+        return JsonResponse(
+            {'message': 'Only PNG, JPEG, and WebP profile photos are supported.'},
+            status=400,
+        )
+    header = uploaded_file.read(12)
+    uploaded_file.seek(0)
+    if not signature_check(header):
+        return JsonResponse(
+            {'message': 'The image contents do not match a supported image format.'},
+            status=400,
+        )
+
+    cv = get_object_or_404(CV, pk=cv_id, user=user)
+    personal_info, _ = PersonalInfo.objects.get_or_create(cv=cv)
+    previous_photo = (
+        (personal_info.photo_file.storage, personal_info.photo_file.name)
+        if personal_info.photo_file
+        else None
+    )
+    saved_photo = None
+    try:
+        personal_info.photo_file.save(uploaded_file.name, uploaded_file, save=False)
+        saved_photo = (personal_info.photo_file.storage, personal_info.photo_file.name)
+        personal_info.photo = ''
+        personal_info.save()
+    except (DatabaseError, OSError):
+        if saved_photo:
+            saved_photo[0].delete(saved_photo[1])
+        logger.exception('Could not store uploaded profile photo for CV %s.', cv_id)
+        return JsonResponse(
+            {'message': 'The profile photo could not be stored. Please try again.'},
+            status=500,
+        )
+
+    if previous_photo and previous_photo != saved_photo:
+        previous_photo[0].delete(previous_photo[1])
+    return JsonResponse(_serialize_profile_photo(personal_info))
+
+
+@csrf_exempt
+@require_POST
+def remove_profile_photo(request, cv_id):
+    user = _authenticated_user(request)
+    if user is None:
+        return JsonResponse({'message': 'Authentication required.'}, status=401)
+
+    cv = get_object_or_404(CV, pk=cv_id, user=user)
+    personal_info = PersonalInfo.objects.filter(cv=cv).first()
+    if personal_info is not None:
+        previous_photo = personal_info.photo_file
+        personal_info.photo_file = None
+        personal_info.photo = ''
+        personal_info.save(update_fields=['photo_file', 'photo'])
+        if previous_photo:
+            previous_photo.delete(save=False)
+    return JsonResponse({'photo': ''})
 
 
 @csrf_exempt

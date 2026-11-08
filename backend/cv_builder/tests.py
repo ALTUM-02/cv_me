@@ -87,3 +87,85 @@ class CertificationUploadTests(TestCase):
             )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_profile_photo_upload_stores_file_and_returns_its_url(self):
+        with patch(
+            'cv_builder.views.JWTAuthentication.authenticate',
+            return_value=self.user,
+        ):
+            response = self.client.post(
+                f'/api/cvs/{self.cv.pk}/profile-photo/',
+                {
+                    'photo': SimpleUploadedFile(
+                        'profile.png',
+                        b'\x89PNG\r\n\x1a\nimage-data',
+                        content_type='image/png',
+                    ),
+                },
+                HTTP_AUTHORIZATION='JWT test-token',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['photo'].startswith('/media/profile-photos/'))
+        self.assertTrue(self.cv.personal_info.photo_file)
+        self.assertEqual(self.cv.personal_info.photo, '')
+
+    def test_profile_photo_upload_rejects_mismatched_contents(self):
+        with patch(
+            'cv_builder.views.JWTAuthentication.authenticate',
+            return_value=self.user,
+        ):
+            response = self.client.post(
+                f'/api/cvs/{self.cv.pk}/profile-photo/',
+                {
+                    'photo': SimpleUploadedFile(
+                        'profile.png',
+                        b'not actually an image',
+                        content_type='image/png',
+                    ),
+                },
+                HTTP_AUTHORIZATION='JWT test-token',
+            )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(self.cv.personal_info.photo_file)
+
+    def test_profile_photo_upload_is_scoped_to_cv_owner(self):
+        with patch(
+            'cv_builder.views.JWTAuthentication.authenticate',
+            return_value=self.user,
+        ):
+            response = self.client.post(
+                f'/api/cvs/{self.other_cv.pk}/profile-photo/',
+                {
+                    'photo': SimpleUploadedFile(
+                        'profile.png',
+                        b'\x89PNG\r\n\x1a\nimage-data',
+                        content_type='image/png',
+                    ),
+                },
+                HTTP_AUTHORIZATION='JWT test-token',
+            )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_profile_photo_can_be_removed(self):
+        personal_info = self.cv.personal_info
+        personal_info.photo_file.save(
+            'profile.png',
+            SimpleUploadedFile('profile.png', b'\x89PNG\r\n\x1a\nimage-data'),
+        )
+
+        with patch(
+            'cv_builder.views.JWTAuthentication.authenticate',
+            return_value=self.user,
+        ):
+            response = self.client.post(
+                f'/api/cvs/{self.cv.pk}/profile-photo/remove/',
+                HTTP_AUTHORIZATION='JWT test-token',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        personal_info.refresh_from_db()
+        self.assertFalse(personal_info.photo_file)
+        self.assertEqual(personal_info.photo, '')

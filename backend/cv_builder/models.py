@@ -52,6 +52,7 @@ class PersonalInfo(models.Model):
     portfolio_url = models.URLField(max_length=500, blank=True, default='')
     summary = models.TextField(blank=True, default='')
     photo = models.URLField(max_length=500, blank=True, null=True)
+    photo_file = models.FileField(upload_to='profile-photos/%Y/%m/', blank=True, null=True)
     
     class Meta:
         verbose_name_plural = 'Personal Info'

@@ -30,9 +30,16 @@ def get_user_from_token(info):
 # ==================== GraphQL Types ====================
 
 class PersonalInfoType(DjangoObjectType):
+    photo = graphene.String()
+
     class Meta:
         model = PersonalInfo
         fields = '__all__'
+
+    def resolve_photo(self, info):
+        if self.photo_file:
+            return self.photo_file.url
+        return self.photo
 
 
 class ExperienceType(DjangoObjectType):

@@ -1,41 +1,65 @@
 import React, { useRef, useState } from 'react';
 import { useCVStore } from '../../store/cvStore';
+import { removeProfilePhoto, uploadProfilePhoto } from '../../api/profilePhotos';
+
+const MAX_PROFILE_PHOTO_SIZE = 5 * 1024 * 1024;
+const SUPPORTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 export const PersonalInfoEditor: React.FC = () => {
-  const { cvData, updatePersonalInfo, customization, updateCustomization } = useCVStore();
+  const {
+    cvData,
+    currentCvId,
+    updatePersonalInfo,
+    setProfilePhoto,
+    customization,
+    updateCustomization,
+  } = useCVStore();
   const { personalInfo } = cvData;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState('');
 
-  const handlePhotoUpload = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+  const handlePhotoUpload = async (file: File) => {
+    setPhotoError('');
+    if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
+      setPhotoError('Choose a PNG, JPEG, or WebP image.');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB');
+    if (file.size > MAX_PROFILE_PHOTO_SIZE) {
+      setPhotoError('Image size must be 5 MB or smaller.');
+      return;
+    }
+    if (!currentCvId) {
+      setPhotoError('Save this CV before uploading a profile photo.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      updatePersonalInfo({ photo: result });
+    setUploadingPhoto(true);
+    try {
+      const photo = await uploadProfilePhoto(currentCvId, file);
+      setProfilePhoto(photo);
       updateCustomization({ showPhoto: true });
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setPhotoError(
+        error instanceof Error ? error.message : 'Profile photo upload failed.',
+      );
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handlePhotoUpload(file);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (file) void handlePhotoUpload(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file) handlePhotoUpload(file);
+    if (file) void handlePhotoUpload(file);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -47,9 +71,24 @@ export const PersonalInfoEditor: React.FC = () => {
     setDragOver(false);
   };
 
-  const removePhoto = () => {
-    updatePersonalInfo({ photo: undefined });
-    updateCustomization({ showPhoto: false });
+  const removePhoto = async () => {
+    setPhotoError('');
+    if (!currentCvId) {
+      setPhotoError('Save this CV before removing its profile photo.');
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      await removeProfilePhoto(currentCvId);
+      setProfilePhoto(undefined);
+      updateCustomization({ showPhoto: false });
+    } catch (error) {
+      setPhotoError(
+        error instanceof Error ? error.message : 'Profile photo could not be removed.',
+      );
+    } finally {
+      setUploadingPhoto(false);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -89,14 +128,18 @@ export const PersonalInfoEditor: React.FC = () => {
               <p className="text-sm text-gray-600 mb-2">Photo uploaded</p>
               <div className="flex gap-2">
                 <button
+                  type="button"
+                  disabled={uploadingPhoto}
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
                 >
-                  Change
+                  {uploadingPhoto ? 'Uploading…' : 'Change'}
                 </button>
                 <button
-                  onClick={removePhoto}
-                  className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  type="button"
+                  disabled={uploadingPhoto}
+                  onClick={() => void removePhoto()}
+                  className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
                 >
                   Remove
                 </button>
@@ -121,19 +164,27 @@ export const PersonalInfoEditor: React.FC = () => {
               </svg>
             </div>
             <p className="text-sm text-gray-600 font-medium">
-              {dragOver ? 'Drop your image here' : 'Click to upload or drag & drop'}
+              {uploadingPhoto
+                ? 'Uploading photo…'
+                : dragOver
+                  ? 'Drop your image here'
+                  : 'Click to upload or drag & drop'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP • Max 5MB</p>
+            <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP • Max 5 MB</p>
           </div>
         )}
 
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
+          disabled={uploadingPhoto}
           onChange={handleFileChange}
           className="hidden"
         />
+        {photoError && (
+          <p role="alert" className="mt-2 text-sm text-red-600">{photoError}</p>
+        )}
 
         {/* Frame Shape Selector */}
         <div className="mt-3">

@@ -13,18 +13,11 @@ import os
 from pathlib import Path
 
 from datetime import timedelta
-# optional config helper (python-decouple). Provide a safe fallback when missing.
-try:
-    from decouple import config, Csv
-except Exception:
-    def config(key, default=None, cast=None):
-        return default
-    class Csv:
-        def __call__(self, v):
-            return v
+from decouple import Config, Csv, RepositoryEnv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env_config = Config(RepositoryEnv(BASE_DIR / '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -156,15 +149,19 @@ AUTH_USER_MODEL = 'accounts.User'
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_ORIGINS = config('CORS_ALLOW_ORIGINS', default='http://localhost:5173', cast=Csv())
+CORS_ALLOW_ORIGINS = env_config(
+    'CORS_ALLOW_ORIGINS',
+    default='http://localhost:5173',
+    cast=Csv(),
+)
 
 # Email API credentials must only be configured on the backend.
-EMAIL_API_URL = os.environ.get(
+EMAIL_API_URL = env_config(
     'EMAIL_API_URL',
-    'https://emailbackend.tarxemo.com/api/v1/send-email/',
+    default='https://emailbackend.tarxemo.com/api/v1/send-email/',
 )
-EMAIL_API_KEY = os.environ.get('EMAIL_API_KEY', '')
-EMAIL_API_SECRET = os.environ.get('EMAIL_API_SECRET', '')
+EMAIL_API_KEY = env_config('EMAIL_API_KEY', default='')
+EMAIL_API_SECRET = env_config('EMAIL_API_SECRET', default='')
 
 # GraphQL Configuration
 GRAPHENE = {
@@ -185,3 +182,5 @@ GRAPHQL_JWT = {
         'graphql_jwt.backends.JSONWebTokenBackend',
     ),
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

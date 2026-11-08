@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apolloClient, TOKEN_AUTH, REGISTER_USER, GET_CURRENT_USER, VERIFY_OTP, REGISTER_WITH_OTP } from '../api/graphql';
+import { apolloClient, TOKEN_AUTH, REGISTER_USER, GET_CURRENT_USER } from '../api/graphql';
 import type { AuthState, User, RegisterData } from '../types/auth';
 
 export const useAuthStore = create<AuthState>()(
@@ -76,92 +76,6 @@ export const useAuthStore = create<AuthState>()(
           return { success: false, message: result?.registerUser?.message || 'Registration failed' };
         } catch (error: unknown) {
           console.error('Registration error:', error);
-          const err = error as { message?: string; networkError?: unknown };
-          if (err.networkError || (err.message && (err.message.includes('Network') || err.message.includes('fetch')))) {
-            return { success: false, message: 'Unable to connect to server. Please check if the backend is running.' };
-          }
-          return { success: false, message: err.message || 'Registration failed' };
-        }
-      },
-
-      // ==================== OTP-BASED AUTH ====================
-
-      verifyOtp: async (email: string, code: string) => {
-        try {
-          const { data } = await apolloClient.mutate({
-            mutation: VERIFY_OTP,
-            variables: { email, code },
-          });
-
-          if (data?.verifyOtp?.success && data?.verifyOtp?.token) {
-            const token = data.verifyOtp.token;
-            localStorage.setItem('auth_token', token);
-
-            const userData = data.verifyOtp.user;
-            if (userData) {
-              const user: User = {
-                id: userData.id,
-                email: userData.email,
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                role: userData.role as 'user' | 'admin',
-                avatar: userData.avatar,
-                createdAt: userData.dateJoined,
-                lastLogin: userData.lastLogin,
-              };
-              set({ user, isAuthenticated: true, token });
-              return { success: true, message: data.verifyOtp.message };
-            }
-          }
-
-          return { success: false, message: data?.verifyOtp?.message || 'OTP verification failed' };
-        } catch (error: unknown) {
-          console.error('Verify OTP error:', error);
-          const err = error as { message?: string; networkError?: unknown };
-          if (err.networkError || (err.message && (err.message.includes('Network') || err.message.includes('fetch')))) {
-            return { success: false, message: 'Unable to connect to server. Please check if the backend is running.' };
-          }
-          return { success: false, message: err.message || 'OTP verification failed' };
-        }
-      },
-
-      registerWithOtp: async (data: { email: string; code: string; firstName: string; lastName: string; password: string }) => {
-        try {
-          const { data: result } = await apolloClient.mutate({
-            mutation: REGISTER_WITH_OTP,
-            variables: {
-              email: data.email,
-              code: data.code,
-              firstName: data.firstName,
-              lastName: data.lastName,
-              password: data.password,
-            },
-          });
-
-          if (result?.registerWithOtp?.success && result?.registerWithOtp?.token) {
-            const token = result.registerWithOtp.token;
-            localStorage.setItem('auth_token', token);
-
-            const userData = result.registerWithOtp.user;
-            if (userData) {
-              const user: User = {
-                id: userData.id,
-                email: userData.email,
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                role: userData.role as 'user' | 'admin',
-                avatar: userData.avatar,
-                createdAt: userData.dateJoined,
-                lastLogin: userData.lastLogin,
-              };
-              set({ user, isAuthenticated: true, token });
-              return { success: true, message: result.registerWithOtp.message };
-            }
-          }
-
-          return { success: false, message: result?.registerWithOtp?.message || 'Registration failed' };
-        } catch (error: unknown) {
-          console.error('Register with OTP error:', error);
           const err = error as { message?: string; networkError?: unknown };
           if (err.networkError || (err.message && (err.message.includes('Network') || err.message.includes('fetch')))) {
             return { success: false, message: 'Unable to connect to server. Please check if the backend is running.' };

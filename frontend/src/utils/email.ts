@@ -88,10 +88,6 @@ export const sendEmail = async (payload: EmailPayload): Promise<EmailResponse> =
   );
 };
 
-export const sendOTPEmail = async (email: string): Promise<EmailResponse> => {
-  return postEmailRequest('/api/email/verification-code/', { email });
-};
-
 export const generateCVShareEmail = (
   cvData: {
     firstName: string;

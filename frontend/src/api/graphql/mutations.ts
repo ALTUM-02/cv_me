@@ -55,60 +55,6 @@ export const REFRESH_TOKEN = gql`
   }
 `;
 
-// ==================== OTP MUTATIONS ====================
-
-export const VERIFY_OTP = gql`
-  mutation VerifyOtp($email: String!, $code: String!) {
-    verifyOtp(email: $email, code: $code) {
-      success
-      message
-      token
-      user {
-        id
-        email
-        firstName
-        lastName
-        role
-        avatar
-        dateJoined
-        lastLogin
-      }
-    }
-  }
-`;
-
-export const REGISTER_WITH_OTP = gql`
-  mutation RegisterWithOtp(
-    $email: String!
-    $code: String!
-    $firstName: String!
-    $lastName: String!
-    $password: String!
-  ) {
-    registerWithOtp(
-      email: $email
-      code: $code
-      firstName: $firstName
-      lastName: $lastName
-      password: $password
-    ) {
-      success
-      message
-      token
-      user {
-        id
-        email
-        firstName
-        lastName
-        role
-        avatar
-        dateJoined
-        lastLogin
-      }
-    }
-  }
-`;
-
 // ==================== CV MUTATIONS ====================
 
 export const CREATE_CV = gql`

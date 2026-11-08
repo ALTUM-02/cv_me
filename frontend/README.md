@@ -1,5 +1,18 @@
 # React + TypeScript + Vite
 
+## CV builder uploads and templates
+
+- In the Certifications editor, attach PDF, PNG, JPEG, or WebP files to an existing
+  certification, or choose multiple files/a folder to create certification entries
+  from the filenames. Uploads are limited to 10 MB per file and 20 files per batch.
+- Certificate upload and download require authentication and are restricted to the
+  CV owner. Run the Django migration before using the feature:
+  `python manage.py migrate` from the `backend/` directory.
+- Selecting a CV template applies its preset colors and fonts. The font library
+  searches all categories and loads the chosen fonts for previews and HTML exports.
+- The Skills editor includes role-based starter templates and avoids adding names
+  already present on the CV.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

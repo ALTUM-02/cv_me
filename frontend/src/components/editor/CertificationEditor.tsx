@@ -22,7 +22,11 @@ export const CertificationEditor: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = async (files: File[], certificationId?: string) => {
+  const handleUpload = async (
+    files: File[],
+    certificationId?: string,
+    skippedFiles = 0,
+  ) => {
     if (!files.length) return;
     setUploading(true);
     setUploadError('');
@@ -34,8 +38,11 @@ export const CertificationEditor: React.FC = () => {
       });
       mergeUploadedCertifications(uploaded);
       if (uploaded[0]) setExpandedId(uploaded[0].id);
+      const skippedMessage = skippedFiles
+        ? ` ${skippedFiles} unsupported file${skippedFiles === 1 ? ' was' : 's were'} skipped.`
+        : '';
       setUploadMessage(
-        `${uploaded.length} certificate${uploaded.length === 1 ? '' : 's'} uploaded.`,
+        `${uploaded.length} certificate${uploaded.length === 1 ? '' : 's'} uploaded.${skippedMessage}`,
       );
     } catch (error) {
       setUploadError(
@@ -50,9 +57,16 @@ export const CertificationEditor: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>,
     certificationId?: string,
   ) => {
-    const files = Array.from(event.target.files || []);
+    const selectedFiles = Array.from(event.target.files || []);
+    const files = selectedFiles.filter((file) =>
+      /\.(pdf|png|jpe?g|webp)$/i.test(file.name),
+    );
     event.target.value = '';
-    await handleUpload(files, certificationId);
+    if (!files.length) {
+      setUploadError('Choose a PDF, PNG, JPEG, or WebP certificate file.');
+      return;
+    }
+    await handleUpload(files, certificationId, selectedFiles.length - files.length);
   };
 
   const handleDownload = async (url: string) => {

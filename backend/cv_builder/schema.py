@@ -463,6 +463,8 @@ class UpdateCustomization(graphene.Mutation):
             
             if input.template_id is not None:
                 customization.template_id = input.template_id
+                cv.template_id = input.template_id
+                cv.save(update_fields=['template_id', 'last_modified'])
             if input.colors is not None:
                 if input.colors.primary is not None:
                     customization.color_primary = input.colors.primary

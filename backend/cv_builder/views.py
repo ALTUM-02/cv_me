@@ -2,7 +2,7 @@ import logging
 import mimetypes
 from pathlib import PurePath
 
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -104,14 +104,16 @@ def upload_certifications(request):
 
     created_certifications = []
     previous_documents = []
+    saved_documents = []
     try:
         with transaction.atomic():
             if not certification_id:
+                first_order = cv.certifications.count()
                 certifications = [
                     Certification.objects.create(
                         cv=cv,
                         name=PurePath(uploaded_file.name).stem[:200],
-                        order=cv.certifications.count() + index,
+                        order=first_order + index,
                     )
                     for index, uploaded_file in enumerate(files)
                 ]
@@ -119,20 +121,28 @@ def upload_certifications(request):
 
             for certification, uploaded_file in zip(certifications, files):
                 if certification.document:
-                    previous_documents.append(certification.document)
+                    previous_documents.append((
+                        certification.document.storage,
+                        certification.document.name,
+                    ))
                 certification.document.save(uploaded_file.name, uploaded_file, save=True)
-    except OSError:
+                saved_documents.append((
+                    certification.document.storage,
+                    certification.document.name,
+                ))
+    except (DatabaseError, OSError):
+        for storage, filename in saved_documents:
+            storage.delete(filename)
         for certification in created_certifications:
-            if certification.document:
-                certification.document.delete(save=False)
+            certification.delete()
         logger.exception('Could not store uploaded certificate documents.')
         return JsonResponse(
             {'message': 'The certificate files could not be stored. Please try again.'},
             status=500,
         )
 
-    for previous_document in previous_documents:
-        previous_document.delete(save=False)
+    for storage, filename in previous_documents:
+        storage.delete(filename)
 
     return JsonResponse({
         'certifications': [

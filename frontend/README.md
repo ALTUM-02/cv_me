@@ -4,9 +4,9 @@
 
 Run the backend and frontend in separate terminals:
 
-1. In `backend/`, install dependencies, apply migrations, and start Django:
-   `pip install -r requirements.txt`, `python manage.py migrate`, then
-   `python manage.py runserver`.
+1. From the repository root, install backend dependencies with
+   `pip install -r requirements.txt`. Then in `backend/`, apply migrations and
+   start Django with `python manage.py migrate` and `python manage.py runserver`.
 2. In `frontend/`, install dependencies and start Vite:
    `npm install` then `npm run dev`.
 

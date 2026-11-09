@@ -401,7 +401,19 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_EXPERIENCE,
-            variables: { cvId: currentCvId, input: newExp },
+            variables: {
+              cvId: currentCvId,
+              input: {
+                company: newExp.company,
+                position: newExp.position,
+                location: newExp.location,
+                startDate: newExp.startDate,
+                endDate: newExp.endDate,
+                current: newExp.current,
+                description: newExp.description,
+                highlights: newExp.highlights,
+              },
+            },
           });
           if (data?.createExperience?.experience?.id) {
             // Update with server-generated ID
@@ -505,7 +517,18 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_EDUCATION,
-            variables: { cvId: currentCvId, input: newEdu },
+            variables: {
+              cvId: currentCvId,
+              input: {
+                institution: newEdu.institution,
+                degree: newEdu.degree,
+                field: newEdu.field,
+                startDate: newEdu.startDate,
+                endDate: newEdu.endDate,
+                gpa: newEdu.gpa,
+                description: newEdu.description,
+              },
+            },
           });
           if (data?.createEducation?.education?.id) {
             set((state) => ({

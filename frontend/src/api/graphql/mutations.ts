@@ -157,17 +157,21 @@ export const CREATE_EXPERIENCE = gql`
   mutation CreateExperience($cvId: ID!, $input: ExperienceInput!) {
     createExperience(cvId: $cvId, input: $input) {
       success
-      experience { company position }
+      experience {
+        id
+        company
+        position
+      }
     }
   }
 `;
 
-// ADD THIS NEW ONE BELOW IT:
 export const UPDATE_EXPERIENCE = gql`
   mutation UpdateExperience($id: ID!, $input: ExperienceInput!) {
-    updateExperience( input: $input) {
+    updateExperience(id: $id, input: $input) {
       success
       experience {
+        id
         company
         position
       }
@@ -182,16 +186,14 @@ export const DELETE_EXPERIENCE = gql`
   mutation DeleteExperience($id: ID!) {
     deleteExperience(id: $id) {
       success
-      message
     }
   }
 `;
 
 export const CREATE_EDUCATION = gql`
-  mutation CreateEducation($cvId: ID!) {
-    createEducation(cvId: $cvId) {
+  mutation CreateEducation($cvId: ID!, $input: EducationInput!) {
+    createEducation(cvId: $cvId, input: $input) {
       success
-      message
       education {
         id
         institution
@@ -209,28 +211,16 @@ export const CREATE_EDUCATION = gql`
 export const UPDATE_EDUCATION = gql`
   mutation UpdateEducation(
     $id: ID!
-    $institution: String
-    $degree: String
-    $field: String
-    $startDate: String
-    $endDate: String
-    $gpa: String
-    $description: String
-    $order: Int
+    $input: EducationInput!
   ) {
     updateEducation(
       id: $id
-      institution: $institution
-      degree: $degree
-      field: $field
-      startDate: $startDate
-      endDate: $endDate
-      gpa: $gpa
-      description: $description
-      order: $order
+      input: $input
     ) {
       success
-      message
+      education {
+        id
+      }
     }
   }
 `;
@@ -239,7 +229,6 @@ export const DELETE_EDUCATION = gql`
   mutation DeleteEducation($id: ID!) {
     deleteEducation(id: $id) {
       success
-      message
     }
   }
 `;

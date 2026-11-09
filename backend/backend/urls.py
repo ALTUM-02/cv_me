@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import RedirectView
 try:
     from graphene_django.views import GraphQLView
 except Exception:
@@ -32,6 +33,14 @@ from cv_builder.views import (
 )
 
 urlpatterns = [
+    path(
+        'favicon.ico',
+        RedirectView.as_view(
+            url=f'{settings.STATIC_URL.rstrip("/")}/favicon.svg',
+            permanent=False,
+        ),
+        name='favicon',
+    ),
     path('admin/', admin.site.urls),
     path('api/email/send/', send_email, name='send_email'),
     path('api/certifications/upload/', upload_certifications, name='upload_certifications'),

@@ -234,10 +234,9 @@ export const DELETE_EDUCATION = gql`
 `;
 
 export const CREATE_SKILL = gql`
-  mutation CreateSkill($cvId: ID!) {
-    createSkill(cvId: $cvId) {
+  mutation CreateSkill($cvId: ID!, $input: SkillInput!) {
+    createSkill(cvId: $cvId, input: $input) {
       success
-      message
       skill {
         id
         name
@@ -249,22 +248,12 @@ export const CREATE_SKILL = gql`
 `;
 
 export const UPDATE_SKILL = gql`
-  mutation UpdateSkill(
-    $id: ID!
-    $name: String
-    $level: String
-    $category: String
-    $order: Int
-  ) {
-    updateSkill(
-      id: $id
-      name: $name
-      level: $level
-      category: $category
-      order: $order
-    ) {
+  mutation UpdateSkill($id: ID!, $input: SkillInput!) {
+    updateSkill(id: $id, input: $input) {
       success
-      message
+      skill {
+        id
+      }
     }
   }
 `;
@@ -273,16 +262,14 @@ export const DELETE_SKILL = gql`
   mutation DeleteSkill($id: ID!) {
     deleteSkill(id: $id) {
       success
-      message
     }
   }
 `;
 
 export const CREATE_LANGUAGE = gql`
-  mutation CreateLanguage($cvId: ID!) {
-    createLanguage(cvId: $cvId) {
+  mutation CreateLanguage($cvId: ID!, $input: LanguageInput!) {
+    createLanguage(cvId: $cvId, input: $input) {
       success
-      message
       language {
         id
         name
@@ -293,20 +280,12 @@ export const CREATE_LANGUAGE = gql`
 `;
 
 export const UPDATE_LANGUAGE = gql`
-  mutation UpdateLanguage(
-    $id: ID!
-    $name: String
-    $proficiency: String
-    $order: Int
-  ) {
-    updateLanguage(
-      id: $id
-      name: $name
-      proficiency: $proficiency
-      order: $order
-    ) {
+  mutation UpdateLanguage($id: ID!, $input: LanguageInput!) {
+    updateLanguage(id: $id, input: $input) {
       success
-      message
+      language {
+        id
+      }
     }
   }
 `;
@@ -315,7 +294,6 @@ export const DELETE_LANGUAGE = gql`
   mutation DeleteLanguage($id: ID!) {
     deleteLanguage(id: $id) {
       success
-      message
     }
   }
 `;
@@ -369,46 +347,28 @@ export const DELETE_CERTIFICATION = gql`
 `;
 
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($cvId: ID!) {
-    createProject(cvId: $cvId) {
+  mutation CreateProject($cvId: ID!, $input: ProjectInput!) {
+    createProject(cvId: $cvId, input: $input) {
       success
-      message
       project {
         id
         name
         description
         url
         technologies
-        startDate
-        endDate
+        highlights
       }
     }
   }
 `;
 
 export const UPDATE_PROJECT = gql`
-  mutation UpdateProject(
-    $id: ID!
-    $name: String
-    $description: String
-    $url: String
-    $technologies: [String]
-    $startDate: String
-    $endDate: String
-    $order: Int
-  ) {
-    updateProject(
-      id: $id
-      name: $name
-      description: $description
-      url: $url
-      technologies: $technologies
-      startDate: $startDate
-      endDate: $endDate
-      order: $order
-    ) {
+  mutation UpdateProject($id: ID!, $input: ProjectInput!) {
+    updateProject(id: $id, input: $input) {
       success
-      message
+      project {
+        id
+      }
     }
   }
 `;
@@ -417,7 +377,6 @@ export const DELETE_PROJECT = gql`
   mutation DeleteProject($id: ID!) {
     deleteProject(id: $id) {
       success
-      message
     }
   }
 `;

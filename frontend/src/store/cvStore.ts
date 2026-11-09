@@ -629,7 +629,14 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_SKILL,
-            variables: { cvId: currentCvId, input: newSkill },
+            variables: {
+              cvId: currentCvId,
+              input: {
+                name: newSkill.name,
+                level: newSkill.level,
+                category: newSkill.category,
+              },
+            },
           });
           if (data?.createSkill?.skill?.id) {
             set((state) => ({
@@ -728,7 +735,13 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_LANGUAGE,
-            variables: { cvId: currentCvId, input: newLang },
+            variables: {
+              cvId: currentCvId,
+              input: {
+                name: newLang.name,
+                proficiency: newLang.proficiency,
+              },
+            },
           });
           if (data?.createLanguage?.language?.id) {
             set((state) => ({
@@ -931,7 +944,16 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_PROJECT,
-            variables: { cvId: currentCvId, input: newProj },
+            variables: {
+              cvId: currentCvId,
+              input: {
+                name: newProj.name,
+                description: newProj.description,
+                url: newProj.url,
+                technologies: newProj.technologies,
+                highlights: newProj.highlights,
+              },
+            },
           });
           if (data?.createProject?.project?.id) {
             set((state) => ({

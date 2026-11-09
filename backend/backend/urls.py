@@ -34,6 +34,11 @@ from cv_builder.views import (
 
 urlpatterns = [
     path(
+        '',
+        RedirectView.as_view(url=settings.FRONTEND_URL, permanent=False),
+        name='home',
+    ),
+    path(
         'favicon.ico',
         RedirectView.as_view(
             url=f'{settings.STATIC_URL.rstrip("/")}/favicon.svg',

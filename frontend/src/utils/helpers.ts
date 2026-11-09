@@ -4,6 +4,25 @@ export const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 };
 
+export const normalizeStringList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+
+  if (typeof value !== 'string' || !value.trim()) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string');
+    }
+  } catch {
+    return [value];
+  }
+
+  return [value];
+};
+
 export const generateId = (): string => Math.random().toString(36).substr(2, 9);
 
 export const debounce = <T extends (...args: unknown[]) => void>(

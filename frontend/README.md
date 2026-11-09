@@ -1,5 +1,19 @@
 # React + TypeScript + Vite
 
+## Run locally
+
+Run the backend and frontend in separate terminals:
+
+1. In `backend/`, install dependencies, apply migrations, and start Django:
+   `pip install -r requirements.txt`, `python manage.py migrate`, then
+   `python manage.py runserver`.
+2. In `frontend/`, install dependencies and start Vite:
+   `npm install` then `npm run dev`.
+
+Open `http://127.0.0.1:8000`; Django redirects the root URL to the Vite app at
+`http://127.0.0.1:5173`. Set `FRONTEND_URL` in the backend environment when the
+frontend is hosted at a different URL.
+
 ## CV builder uploads and templates
 
 - In Personal Info, upload a PNG, JPEG, or WebP profile photo (up to 5 MB), replace

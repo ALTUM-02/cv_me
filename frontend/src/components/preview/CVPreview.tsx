@@ -221,7 +221,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
                     {exp.description && (
                       <p className="text-sm text-gray-600 mt-2">{exp.description}</p>
                     )}
-                    {exp.highlights.length > 0 && (
+                    {Array.isArray(exp.highlights) && exp.highlights.length > 0 && (
                       <ul className="mt-2 space-y-1">
                         {exp.highlights.map((highlight, idx) => (
                           <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">

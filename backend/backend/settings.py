@@ -164,6 +164,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR.parent / 'frontend' / 'public']
 
+FRONTEND_URL = env_value('FRONTEND_URL', 'http://127.0.0.1:5173')
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'mediafiles'
 

@@ -27,6 +27,7 @@ import {
 } from '../api/graphql/mutations';
 import { GET_ALL_CVS as GET_ALL_CVS_QUERY, GET_CV } from '../api/graphql/queries';
 import { getTemplate } from '../data/templates';
+import { normalizeStringList } from '../utils/helpers';
 import type {
   CVData,
   CustomizationOptions,
@@ -180,7 +181,7 @@ const convertGraphQLCVToLocal = (cv: GraphQLCV): { cvData: CVData; customization
       endDate: e.endDate || '',
       current: e.current || false,
       description: e.description || '',
-      highlights: e.highlights || [],
+      highlights: normalizeStringList(e.highlights),
     })),
     education: (cv.education || []).map((e) => ({
       id: e.id,
@@ -217,8 +218,8 @@ const convertGraphQLCVToLocal = (cv: GraphQLCV): { cvData: CVData; customization
       name: p.name || '',
       description: p.description || '',
       url: p.url || undefined,
-      technologies: p.technologies || [],
-      highlights: p.highlights || [],
+      technologies: normalizeStringList(p.technologies),
+      highlights: normalizeStringList(p.highlights),
     })),
   };
 

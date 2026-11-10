@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
+// import { LoginPage } from './pages/LoginPage';
+// import { RegisterPage } from './pages/RegisterPage';
 import { UserDashboard } from './pages/UserDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { CVBuilder } from './pages/CVBuilder';
@@ -24,7 +24,7 @@ function App() {
   
   // Determine initial page based on auth state
   const getInitialPage = (): Page => {
-    if (!isAuthenticated) return 'login';
+    if (!isAuthenticated) return 'user-dashboard';
     if (user?.role === 'admin') return 'admin-dashboard';
     return 'user-dashboard';
   };
@@ -48,24 +48,32 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'login':
-        return <LoginPage onNavigate={handleNavigate} />;
       case 'register':
-        return <RegisterPage onNavigate={handleNavigate} />;
+        return <AuthDisabledNotice />;
       case 'user-dashboard':
-        if (!isAuthenticated) return <LoginPage onNavigate={handleNavigate} />;
         return <UserDashboard onNavigate={handleNavigate} />;
       case 'admin-dashboard':
-        if (!isAuthenticated || user?.role !== 'admin') return <LoginPage onNavigate={handleNavigate} />;
+        if (!isAuthenticated || user?.role !== 'admin') return <AuthDisabledNotice />;
         return <AdminDashboard onNavigate={handleNavigate} />;
       case 'cv-builder':
-        if (!isAuthenticated) return <LoginPage onNavigate={handleNavigate} />;
+        if (!isAuthenticated) return <AuthDisabledNotice />;
         return <CVBuilder onNavigate={handleNavigate} />;
       default:
-        return <LoginPage onNavigate={handleNavigate} />;
+        return <AuthDisabledNotice />;
     }
   };
 
   return <>{renderPage()}</>;
+}
+
+function AuthDisabledNotice() {
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6 text-center dark:bg-gray-900">
+      <p className="text-gray-700 dark:text-gray-200">
+        Login and registration are temporarily disabled.
+      </p>
+    </main>
+  );
 }
 
 export default App;

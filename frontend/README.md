@@ -14,6 +14,25 @@ Open `http://127.0.0.1:8000`; Django redirects the root URL to the Vite app at
 `http://127.0.0.1:5173`. Set `FRONTEND_URL` in the backend environment when the
 frontend is hosted at a different URL.
 
+## Deploy to GitHub Pages
+
+From `frontend/`, install dependencies and publish the site:
+
+```sh
+npm install
+npm run deploy
+```
+
+The `predeploy` script builds the app before `gh-pages` publishes `dist` to the
+`gh-pages` branch. In the repository settings, set **Pages → Build and
+deployment → Source** to **Deploy from a branch**, then choose the `gh-pages`
+branch and `/(root)` folder. The Vite base path is configured for this
+repository's project site at `https://ALTUM-02.github.io/cv_me/`.
+
+GitHub Pages hosts static files only. The Django backend must be deployed
+separately, and the frontend's API URLs must be configured to use that backend
+before authentication, CV data, and uploads will work in production.
+
 ## CV builder uploads and templates
 
 - In Personal Info, upload a PNG, JPEG, or WebP profile photo (up to 5 MB), replace

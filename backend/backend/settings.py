@@ -118,30 +118,17 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if env_value('DB_NAME'):
-    database_options = {}
-    database_sslmode = env_value('DB_SSLMODE')
-    if database_sslmode:
-        database_options['sslmode'] = database_sslmode
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cv_me',       # The name of the database you created in pgAdmin
+        'USER': 'postgres',       # Usually 'postgres' unless you created a new one
+        'PASSWORD': 'altum02',  # Your database password
+        'HOST': 'localhost', # 'localhost' if running locally, or the remote IP/Domain
+        'PORT': '5432',                      # Default is '5432' (change if your second server uses a different port)
+    }
+}
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env_value('DB_NAME'),
-            'USER': env_value('DB_USER'),
-            'PASSWORD': env_value('DB_PASSWORD'),
-            'HOST': env_value('DB_HOST'),
-            'PORT': env_value('DB_PORT', '5432'),
-            'OPTIONS': database_options,
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 
 # Password validation

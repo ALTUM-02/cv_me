@@ -12,7 +12,7 @@ type Page = 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-bu
 function App() {
   const { isAuthenticated, user, loadUser } = useAuthStore();
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
-  
+
   useEffect(() => {
     initializeTheme();
   }, [initializeTheme]);
@@ -21,7 +21,7 @@ function App() {
   useEffect(() => {
     loadUser();
   }, [loadUser]);
-  
+
   // Determine initial page based on auth state
   const getInitialPage = (): Page => {
     if (!isAuthenticated) return 'login';
@@ -31,16 +31,42 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState<Page>(getInitialPage());
 
-  // Sync page with auth state
+  // Sync page with auth state and enforce page-level access rules
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (currentPage === 'login' || currentPage === 'register') {
-        setCurrentPage(user.role === 'admin' ? 'admin-dashboard' : 'user-dashboard');
-      }
+    if (!isAuthenticated) {
+      setCurrentPage((previousPage) => {
+        if (previousPage === 'login' || previousPage === 'register') return previousPage;
+        return 'login';
+      });
+      return;
     }
-  }, [currentPage, isAuthenticated, user]);
+
+    const nextPage = user?.role === 'admin' ? 'admin-dashboard' : 'user-dashboard';
+
+    setCurrentPage((previousPage) => {
+      if (previousPage === 'login' || previousPage === 'register') return nextPage;
+      if (previousPage === 'admin-dashboard' && user?.role !== 'admin') return 'user-dashboard';
+      if (previousPage === 'user-dashboard' && user?.role === 'admin') return 'admin-dashboard';
+      return previousPage;
+    });
+  }, [isAuthenticated, user?.role]);
 
   const handleNavigate = (page: Page) => {
+    if (!isAuthenticated && page !== 'login' && page !== 'register') {
+      setCurrentPage('login');
+      return;
+    }
+
+    if (page === 'admin-dashboard' && (!isAuthenticated || user?.role !== 'admin')) {
+      setCurrentPage('login');
+      return;
+    }
+
+    if (page === 'user-dashboard' && !isAuthenticated) {
+      setCurrentPage('login');
+      return;
+    }
+
     setCurrentPage(page);
   };
 

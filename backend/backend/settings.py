@@ -51,7 +51,10 @@ if not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = 'django-insecure-local-development-only'
     else:
-        raise ImproperlyConfigured('Set SECRET_KEY in the environment.')
+        raise ImproperlyConfigured(
+            'Set SECRET_KEY in backend/.env or the environment. '
+            'For local development, set DEBUG=True in backend/.env.'
+        )
 
 ALLOWED_HOSTS = [
     host.strip()

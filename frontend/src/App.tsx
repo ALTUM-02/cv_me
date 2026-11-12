@@ -90,7 +90,6 @@ function App() {
         return <LoginPage onNavigate={handleNavigate} />;
     }
   };
-
   return <>{renderPage()}</>;
 }
 

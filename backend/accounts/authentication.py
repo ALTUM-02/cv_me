@@ -24,13 +24,14 @@ class JWTAuthentication:
         
         try:
             user = get_user_by_token(token)
-            return user
+            return user if user is not None and user.is_active else None
         except Exception:
             return None
     
     def authenticate_by_token(self, token):
         """Authenticate user by token string."""
         try:
-            return get_user_by_token(token)
+            user = get_user_by_token(token)
+            return user if user is not None and user.is_active else None
         except Exception:
             return None

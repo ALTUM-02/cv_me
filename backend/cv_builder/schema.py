@@ -22,7 +22,8 @@ def get_user_from_token(info):
     token = auth_header[4:]
     try:
         from graphql_jwt.shortcuts import get_user_by_token
-        return get_user_by_token(token)
+        user = get_user_by_token(token)
+        return user if user is not None and user.is_active else None
     except Exception:
         return None
 
@@ -1090,6 +1091,8 @@ class Query(graphene.ObjectType):
         if not user:
             return None
         try:
+            if user.role == 'admin':
+                return CV.objects.get(id=id)  # admins can view any user's CV
             return CV.objects.get(id=id, user=user)
         except CV.DoesNotExist:
             return None

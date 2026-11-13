@@ -27,3 +27,28 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'first_name', 'last_name', 'is_staff', 'avatar'),
         }),
     )
+
+
+from .models import ActivityLog, SiteSettings
+
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ('updated_at', 'user_label', 'action', 'detail', 'type')
+    list_filter = ('type',)
+    search_fields = ('user_label', 'action', 'detail')
+    readonly_fields = [f.name for f in ActivityLog._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ('site_name', 'allow_registration', 'maintenance_mode', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

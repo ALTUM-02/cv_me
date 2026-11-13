@@ -16,7 +16,7 @@ export interface GraphQLUser {
   avatar?: string;
   createdAt: string;
   lastLogin?: string;
-  isActive?: boolean;
+  isActive: boolean;
   cvCount?: number;
 }
 
@@ -293,4 +293,88 @@ export interface DashboardStatsData {
     time: string;
     type: string;
   }[];
+}
+
+export interface AdminActivityEntry {
+  id: string;
+  userId?: string | null;
+  userLabel: string;
+  action: string;
+  detail: string;
+  type: string;
+  cvId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminCVSummary {
+  id: string;
+  title: string;
+  status: string;
+  templateId: string;
+  createdAt: string;
+  lastModified: string;
+  ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
+  fullName: string;
+  headline: string;
+  photo: string;
+  experienceCount: number;
+  educationCount: number;
+  skillCount: number;
+  certificationCount: number;
+  projectCount: number;
+}
+
+export interface WebsiteSettings {
+  siteName: string;
+  announcement: string;
+  announcementLevel: 'info' | 'success' | 'warning';
+  allowRegistration: boolean;
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  updatedAt: string;
+}
+
+export interface ActivityLogEntry {
+  id: string;
+  userId?: string | null;
+  userLabel: string;
+  action: string;
+  detail: string;
+  type: string;
+  cvId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminCV {
+  id: string;
+  title: string;
+  status: string;
+  templateId: string;
+  createdAt: string;
+  lastModified: string;
+  ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
+  fullName: string;
+  headline: string;
+  photo: string;
+  experienceCount: number;
+  educationCount: number;
+  skillCount: number;
+  certificationCount: number;
+  projectCount: number;
+}
+
+export interface SiteSettingsData {
+  siteName: string;
+  announcement: string;
+  announcementLevel: 'info' | 'success' | 'warning' | string;
+  allowRegistration: boolean;
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  updatedAt?: string;
 }

@@ -208,3 +208,59 @@ export const GET_DASHBOARD_STATS = gql`
     }
   }
 `;
+
+// ==================== ADMIN MANAGEMENT ====================
+
+export const GET_ACTIVITY_LOG = gql`
+  query GetActivityLog($limit: Int, $userId: ID, $type: String, $search: String) {
+    activityLog(limit: $limit, userId: $userId, type: $type, search: $search) {
+      id
+      userId
+      userLabel
+      action
+      detail
+      type
+      cvId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_ADMIN_CVS = gql`
+  query GetAdminCvs($userId: ID, $search: String) {
+    adminCvs(userId: $userId, search: $search) {
+      id
+      title
+      status
+      templateId
+      createdAt
+      lastModified
+      ownerId
+      ownerName
+      ownerEmail
+      fullName
+      headline
+      photo
+      experienceCount
+      educationCount
+      skillCount
+      certificationCount
+      projectCount
+    }
+  }
+`;
+
+export const GET_SITE_SETTINGS = gql`
+  query GetSiteSettings {
+    siteSettings {
+      siteName
+      announcement
+      announcementLevel
+      allowRegistration
+      maintenanceMode
+      maintenanceMessage
+      updatedAt
+    }
+  }
+`;

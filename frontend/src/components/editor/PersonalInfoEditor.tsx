@@ -2,14 +2,14 @@ import React, { useRef, useState } from 'react';
 import { useCVStore } from '../../store/cvStore';
 import { removeProfilePhoto, uploadProfilePhoto } from '../../api/profilePhotos';
 
-const MAX_PROFILE_PHOTO_SIZE = 5 * 1024 * 1024;
-const SUPPORTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+const MAX_PROFILE_PHOTO_SIZE = 25 * 1024 * 1024;
 
 export const PersonalInfoEditor: React.FC = () => {
   const {
     cvData,
     currentCvId,
     updatePersonalInfo,
+    createNewCV,
     setProfilePhoto,
     customization,
     updateCustomization,
@@ -22,22 +22,28 @@ export const PersonalInfoEditor: React.FC = () => {
 
   const handlePhotoUpload = async (file: File) => {
     setPhotoError('');
-    if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
-      setPhotoError('Choose a PNG, JPEG, or WebP image.');
+    if (file.type && !file.type.startsWith('image/')) {
+      setPhotoError('Choose an image file (JPG, PNG, WebP or a phone photo).');
       return;
     }
     if (file.size > MAX_PROFILE_PHOTO_SIZE) {
-      setPhotoError('Image size must be 5 MB or smaller.');
-      return;
-    }
-    if (!currentCvId) {
-      setPhotoError('Save this CV before uploading a profile photo.');
+      setPhotoError('Image size must be 25 MB or smaller.');
       return;
     }
 
     setUploadingPhoto(true);
     try {
-      const photo = await uploadProfilePhoto(currentCvId, file);
+      let cvId = currentCvId;
+      if (!cvId) {
+        // No saved CV yet: create one, keeping what the user already typed.
+        const typedInfo = { ...personalInfo };
+        delete typedInfo.photo;
+        const name = [typedInfo.firstName, typedInfo.lastName].filter(Boolean).join(' ');
+        cvId = await createNewCV(name ? `${name} CV` : undefined);
+        if (!cvId) throw new Error('Could not save your CV. Please sign in and try again.');
+        await updatePersonalInfo(typedInfo);
+      }
+      const photo = await uploadProfilePhoto(cvId, file);
       setProfilePhoto(photo);
       updateCustomization({ showPhoto: true });
     } catch (error) {
@@ -170,14 +176,14 @@ export const PersonalInfoEditor: React.FC = () => {
                   ? 'Drop your image here'
                   : 'Click to upload or drag & drop'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP • Max 5 MB</p>
+            <p className="text-xs text-gray-400 mt-1">Phone photos supported • Up to 25 MB; resized before upload</p>
           </div>
         )}
 
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/*"
           disabled={uploadingPhoto}
           onChange={handleFileChange}
           className="hidden"

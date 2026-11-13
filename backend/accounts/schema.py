@@ -11,6 +11,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from graphql_jwt.shortcuts import get_token
 from graphql_jwt import relay as jwt_relay
+from django.db.models import Q
+
+from .activity import display_name, log_activity
+from .models import ActivityLog, SiteSettings
 
 User = get_user_model()
 
@@ -40,7 +44,8 @@ def get_user_from_token(info):
     token = auth_header[4:]
     try:
         from graphql_jwt.shortcuts import get_user_by_token
-        return get_user_by_token(token)
+        user = get_user_by_token(token)
+        return user if user is not None and user.is_active else None
     except Exception:
         return None
 
@@ -167,25 +172,15 @@ def build_dashboard_stats():
         for d in days
     ]
 
-    # Recent activity: newest sign-ups and CVs
-    events = []
-    for u in User.objects.order_by('-date_joined')[:10]:
-        events.append((u.date_joined, ActivityItem(
-            id=f'user-{u.pk}', user=_display_name(u), action='joined ResumeForge',
-            detail=u.email, type='auth',
-        )))
-    for cv in CV.objects.select_related('user').order_by('-created_at')[:10]:
-        events.append((cv.created_at, ActivityItem(
-            id=f'cv-{cv.pk}', user=_display_name(cv.user),
-            action='published a CV' if cv.status == 'published' else 'created a CV',
-            detail=f'{cv.title} ({labels.get(cv.template_id, cv.template_id)} template)',
-            type='publish' if cv.status == 'published' else 'create',
-        )))
-    events.sort(key=lambda e: e[0], reverse=True)
-    recent = []
-    for when, item in events[:15]:
-        item.time = timezone.localtime(when).strftime('%d %b %Y, %H:%M')
-        recent.append(item)
+    # Recent activity from the activity log
+    recent = [
+        ActivityItem(
+            id=str(entry.pk), user=entry.user_label, action=entry.action,
+            detail=entry.detail, type=entry.type,
+            time=timezone.localtime(entry.updated_at).strftime('%d %b %Y, %H:%M'),
+        )
+        for entry in ActivityLog.objects.all()[:15]
+    ]
 
     return DashboardStats(
         total_users=User.objects.count(),
@@ -199,10 +194,107 @@ def build_dashboard_stats():
     )
 
 
+# ==================== ADMIN MANAGEMENT TYPES ====================
+
+class ActivityLogType(DjangoObjectType):
+    class Meta:
+        model = ActivityLog
+        fields = ('id', 'user_id', 'user_label', 'action', 'detail', 'type', 'cv_id',
+                  'created_at', 'updated_at')
+
+    user_id = graphene.ID()
+    cv_id = graphene.ID()
+
+
+class SiteSettingsType(DjangoObjectType):
+    class Meta:
+        model = SiteSettings
+        fields = ('site_name', 'announcement', 'announcement_level', 'allow_registration',
+                  'maintenance_mode', 'maintenance_message', 'updated_at')
+
+    announcement_level = graphene.String()
+
+
+class AdminCVType(graphene.ObjectType):
+    id = graphene.ID()
+    title = graphene.String()
+    status = graphene.String()
+    template_id = graphene.String()
+    created_at = graphene.DateTime()
+    last_modified = graphene.DateTime()
+    owner_id = graphene.ID()
+    owner_name = graphene.String()
+    owner_email = graphene.String()
+    full_name = graphene.String()
+    headline = graphene.String()
+    photo = graphene.String()
+    experience_count = graphene.Int()
+    education_count = graphene.Int()
+    skill_count = graphene.Int()
+    certification_count = graphene.Int()
+    project_count = graphene.Int()
+
+
+def _admin_cv(cv):
+    info = getattr(cv, 'personal_info', None)
+    photo = ''
+    if info is not None:
+        photo = info.photo_file.url if info.photo_file else (info.photo or '')
+    return AdminCVType(
+        id=cv.pk, title=cv.title, status=cv.status, template_id=cv.template_id,
+        created_at=cv.created_at, last_modified=cv.last_modified,
+        owner_id=cv.user_id, owner_name=display_name(cv.user), owner_email=cv.user.email,
+        full_name=f"{getattr(info, 'first_name', '')} {getattr(info, 'last_name', '')}".strip(),
+        headline=(getattr(info, 'summary', '') or '')[:160],
+        photo=photo,
+        experience_count=cv.experiences.count(),
+        education_count=cv.education.count(),
+        skill_count=cv.skills.count(),
+        certification_count=cv.certifications.count(),
+        project_count=cv.projects.count(),
+    )
+
+
 class Query(graphene.ObjectType):
     viewer = graphene.Field(UserType)
     all_users = graphene.List(UserType)
     dashboard_stats = graphene.Field(DashboardStats)
+    activity_log = graphene.List(
+        ActivityLogType, limit=graphene.Int(), user_id=graphene.ID(), type=graphene.String(),
+        search=graphene.String(),
+    )
+    admin_cvs = graphene.List(AdminCVType, user_id=graphene.ID(), search=graphene.String())
+    site_settings = graphene.Field(SiteSettingsType)
+
+    def resolve_activity_log(self, info, limit=100, user_id=None, type=None, search=None):
+        if get_admin_from_token(info) is None:
+            return []
+        qs = ActivityLog.objects.all()
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+        if type:
+            qs = qs.filter(type=type)
+        if search:
+            qs = qs.filter(Q(user_label__icontains=search) | Q(detail__icontains=search)
+                           | Q(action__icontains=search))
+        return qs[:max(1, min(limit or 100, 500))]
+
+    def resolve_admin_cvs(self, info, user_id=None, search=None):
+        if get_admin_from_token(info) is None:
+            return []
+        from cv_builder.models import CV
+        qs = CV.objects.select_related('user', 'personal_info')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+        if search:
+            qs = qs.filter(Q(title__icontains=search) | Q(user__email__icontains=search)
+                           | Q(user__first_name__icontains=search)
+                           | Q(user__last_name__icontains=search))
+        return [_admin_cv(cv) for cv in qs[:300]]
+
+    def resolve_site_settings(self, info):
+        # Public: the website reads the announcement and sign-up/maintenance flags.
+        return SiteSettings.load()
 
     def resolve_dashboard_stats(self, info):
         if get_admin_from_token(info) is None:
@@ -243,6 +335,9 @@ class RegisterUser(graphene.Mutation):
         if len(password) < 6:
             return RegisterUser(success=False, message='Password must be at least 6 characters')
 
+        if not SiteSettings.load().allow_registration:
+            return RegisterUser(success=False, message='New sign-ups are currently closed.')
+
         if User.objects.filter(email__iexact=email).exists():
             return RegisterUser(success=False, message='Email already registered')
         
@@ -256,7 +351,8 @@ class RegisterUser(graphene.Mutation):
         )
         user.set_password(password)
         user.save()
-        
+        log_activity(user, 'signed up', user.email, 'auth')
+
         return RegisterUser(
             success=True,
             message='User registered successfully',
@@ -284,8 +380,14 @@ class TokenAuth(graphene.Mutation):
         
         if not user.is_active:
             return TokenAuth(token=None, payload=None, refresh_expires_in=0)
-        
+
+        site = SiteSettings.load()
+        if site.maintenance_mode and user.role != 'admin':
+            from graphql import GraphQLError
+            raise GraphQLError(site.maintenance_message or 'The website is under maintenance.')
+
         update_last_login(None, user)
+        log_activity(user, 'signed in', user.email, 'auth')
         token = get_token(user)
         return TokenAuth(
             token=token,
@@ -314,7 +416,9 @@ class DeleteUser(graphene.Mutation):
                 return DeleteUser(success=False, message='You cannot delete your own account here')
             if target_user.role == 'admin':
                 return DeleteUser(success=False, message='Cannot delete admin users')
+            label = f'{display_name(target_user)} ({target_user.email})'
             target_user.delete()
+            log_activity(user, 'deleted a user', label, 'admin')
             return DeleteUser(success=True, message='User deleted successfully')
         except User.DoesNotExist:
             return DeleteUser(success=False, message='User not found')
@@ -349,7 +453,156 @@ class UpdateUserRole(graphene.Mutation):
         target_user.is_staff = is_admin
         target_user.is_superuser = is_admin
         target_user.save()
+        log_activity(
+            user, 'made a user admin' if is_admin else 'removed admin access',
+            f'{display_name(target_user)} ({target_user.email})', 'admin',
+        )
         return UpdateUserRole(success=True, message='Role updated', user=target_user)
+
+
+class UpdateUserStatus(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        is_active = graphene.Boolean(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, id, is_active):
+        admin_user = get_admin_from_token(info)
+        if admin_user is None:
+            return UpdateUserStatus(success=False, message='Permission denied')
+        try:
+            target_user = User.objects.get(pk=id)
+        except User.DoesNotExist:
+            return UpdateUserStatus(success=False, message='User not found')
+        if target_user.pk == admin_user.pk:
+            return UpdateUserStatus(success=False, message='You cannot suspend your own account')
+        if target_user.is_staff or target_user.is_superuser:
+            return UpdateUserStatus(
+                success=False,
+                message='Change admin access before changing an administrator account status',
+            )
+
+        target_user.is_active = is_active
+        target_user.save(update_fields=['is_active'])
+        message = 'User activated' if is_active else 'User suspended'
+        log_activity(admin_user, 'activated a user' if is_active else 'suspended a user',
+                     f'{display_name(target_user)} ({target_user.email})', 'admin')
+        return UpdateUserStatus(success=True, message=message, user=target_user)
+
+
+class AdminUpdateUser(graphene.Mutation):
+    """Edit a user's name and email."""
+    class Arguments:
+        id = graphene.ID(required=True)
+        first_name = graphene.String()
+        last_name = graphene.String()
+        email = graphene.String()
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, id, first_name=None, last_name=None, email=None):
+        admin = get_admin_from_token(info)
+        if admin is None:
+            return AdminUpdateUser(success=False, message='Permission denied')
+        target = User.objects.filter(pk=id).first()
+        if target is None:
+            return AdminUpdateUser(success=False, message='User not found')
+        if email is not None:
+            email = email.strip().lower()
+            try:
+                validate_email(email)
+            except ValidationError:
+                return AdminUpdateUser(success=False, message='Enter a valid email address')
+            if User.objects.filter(email__iexact=email).exclude(pk=target.pk).exists():
+                return AdminUpdateUser(success=False, message='That email is already used')
+            target.email = email
+            target.username = email
+        if first_name is not None:
+            target.first_name = first_name.strip()
+        if last_name is not None:
+            target.last_name = last_name.strip()
+        target.save()
+        log_activity(admin, 'edited a user', f'{display_name(target)} ({target.email})', 'admin')
+        return AdminUpdateUser(success=True, message='User updated', user=target)
+
+
+class AdminSetCvStatus(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        status = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(self, info, id, status):
+        admin = get_admin_from_token(info)
+        if admin is None:
+            return AdminSetCvStatus(success=False, message='Permission denied')
+        if status not in ('draft', 'published'):
+            return AdminSetCvStatus(success=False, message='Unknown status')
+        from cv_builder.models import CV
+        cv = CV.objects.select_related('user').filter(pk=id).first()
+        if cv is None:
+            return AdminSetCvStatus(success=False, message='CV not found')
+        CV.objects.filter(pk=cv.pk).update(status=status)
+        log_activity(admin, 'published a CV' if status == 'published' else 'unpublished a CV',
+                     f'{cv.title} (owner: {cv.user.email})', 'admin', cv.pk)
+        return AdminSetCvStatus(success=True, message=f'CV set to {status}')
+
+
+class AdminDeleteCv(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(self, info, id):
+        admin = get_admin_from_token(info)
+        if admin is None:
+            return AdminDeleteCv(success=False, message='Permission denied')
+        from cv_builder.models import CV
+        cv = CV.objects.select_related('user').filter(pk=id).first()
+        if cv is None:
+            return AdminDeleteCv(success=False, message='CV not found')
+        label = f'{cv.title} (owner: {cv.user.email})'
+        cv.delete()
+        log_activity(admin, 'deleted a CV', label, 'admin', int(id))
+        return AdminDeleteCv(success=True, message='CV deleted')
+
+
+class UpdateSiteSettings(graphene.Mutation):
+    class Arguments:
+        site_name = graphene.String()
+        announcement = graphene.String()
+        announcement_level = graphene.String()
+        allow_registration = graphene.Boolean()
+        maintenance_mode = graphene.Boolean()
+        maintenance_message = graphene.String()
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    settings = graphene.Field(SiteSettingsType)
+
+    def mutate(self, info, **changes):
+        admin = get_admin_from_token(info)
+        if admin is None:
+            return UpdateSiteSettings(success=False, message='Permission denied')
+        site = SiteSettings.load()
+        level = changes.get('announcement_level')
+        if level is not None and level not in dict(SiteSettings.ANNOUNCEMENT_LEVELS):
+            return UpdateSiteSettings(success=False, message='Unknown announcement level')
+        for field, value in changes.items():
+            if value is not None:
+                setattr(site, field, value.strip() if isinstance(value, str) else value)
+        site.save()
+        log_activity(admin, 'updated website settings', ', '.join(sorted(changes)), 'admin')
+        return UpdateSiteSettings(success=True, message='Website settings saved', settings=site)
 
 
 # ==================== ROOT MUTATION ====================
@@ -363,3 +616,8 @@ class Mutation(graphene.ObjectType):
     # Admin
     delete_user = DeleteUser.Field()
     update_user_role = UpdateUserRole.Field()
+    admin_update_user = AdminUpdateUser.Field()
+    admin_set_cv_status = AdminSetCvStatus.Field()
+    admin_delete_cv = AdminDeleteCv.Field()
+    update_site_settings = UpdateSiteSettings.Field()
+    update_user_status = UpdateUserStatus.Field()

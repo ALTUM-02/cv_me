@@ -42,6 +42,10 @@ if [ -n "$CONF" ]; then
   else
     echo "    already configured in $CONF"
   fi
+  if ! grep -q 'client_max_body_size' "$CONF"; then
+    sed -i "0,/location /s##client_max_body_size 20M;\n\n    location #" "$CONF"
+    echo "    set client_max_body_size 20M (uploads were limited to 1 MB)"
+  fi
   nginx -t && systemctl reload nginx
 else
   echo "    !! nginx site config not found; add the block from deploy/nginx-media.conf manually"

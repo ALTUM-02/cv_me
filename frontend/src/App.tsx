@@ -6,12 +6,18 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { CVBuilder } from './pages/CVBuilder';
 import { useAuthStore } from './store/authStore';
 import { useThemeStore } from './store/themeStore';
+import { useQuery } from '@apollo/client/react';
+import { GET_SITE_SETTINGS } from './api/graphql/queries';
+import type { WebsiteSettings } from './api/graphql/types';
+import { AnnouncementBanner } from './components/admin/AdminPanels';
 
 type Page = 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-builder';
 
 function App() {
   const { isAuthenticated, user, loadUser } = useAuthStore();
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
+  const { data: siteData } = useQuery<{ siteSettings: WebsiteSettings }>(GET_SITE_SETTINGS);
+  const siteSettings = siteData?.siteSettings;
 
   useEffect(() => {
     initializeTheme();
@@ -21,6 +27,10 @@ function App() {
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  useEffect(() => {
+    if (siteSettings?.siteName) document.title = siteSettings.siteName;
+  }, [siteSettings?.siteName]);
 
   // Determine initial page based on auth state
   const getInitialPage = (): Page => {
@@ -90,7 +100,17 @@ function App() {
         return <LoginPage onNavigate={handleNavigate} />;
     }
   };
-  return <>{renderPage()}</>;
+  return (
+    <>
+      <AnnouncementBanner settings={siteSettings} />
+      {siteSettings?.maintenanceMode && user?.role !== 'admin' && (
+        <aside role="status" className="bg-amber-600 px-4 py-2 text-center text-sm font-semibold text-white">
+          {siteSettings.maintenanceMessage}
+        </aside>
+      )}
+      {renderPage()}
+    </>
+  );
 }
 
 export default App;

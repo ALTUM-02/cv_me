@@ -374,3 +374,64 @@ export const UPDATE_USER_ROLE = gql`
     }
   }
 `;
+
+export const UPDATE_USER_STATUS = gql`
+  mutation UpdateUserStatus($id: ID!, $isActive: Boolean!) {
+    updateUserStatus(id: $id, isActive: $isActive) {
+      success
+      message
+      user { id isActive }
+    }
+  }
+`;
+
+export const ADMIN_UPDATE_USER = gql`
+  mutation AdminUpdateUser($id: ID!, $firstName: String, $lastName: String, $email: String) {
+    adminUpdateUser(id: $id, firstName: $firstName, lastName: $lastName, email: $email) {
+      success
+      message
+      user { id firstName lastName email }
+    }
+  }
+`;
+
+export const ADMIN_SET_CV_STATUS = gql`
+  mutation AdminSetCvStatus($id: ID!, $status: String!) {
+    adminSetCvStatus(id: $id, status: $status) {
+      success
+      message
+    }
+  }
+`;
+
+export const ADMIN_DELETE_CV = gql`
+  mutation AdminDeleteCv($id: ID!) {
+    adminDeleteCv(id: $id) {
+      success
+      message
+    }
+  }
+`;
+
+export const UPDATE_SITE_SETTINGS = gql`
+  mutation UpdateSiteSettings(
+    $siteName: String
+    $announcement: String
+    $announcementLevel: String
+    $allowRegistration: Boolean
+    $maintenanceMode: Boolean
+    $maintenanceMessage: String
+  ) {
+    updateSiteSettings(
+      siteName: $siteName
+      announcement: $announcement
+      announcementLevel: $announcementLevel
+      allowRegistration: $allowRegistration
+      maintenanceMode: $maintenanceMode
+      maintenanceMessage: $maintenanceMessage
+    ) {
+      success
+      message
+    }
+  }
+`;

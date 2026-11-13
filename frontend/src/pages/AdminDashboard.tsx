@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_ADMIN_PROFILE, GET_ALL_USERS, GET_DASHBOARD_STATS } from '../api/graphql/queries';
-import { DELETE_USER, UPDATE_USER_ROLE } from '../api/graphql/mutations';
+import { DELETE_USER, UPDATE_USER_ROLE, UPDATE_USER_STATUS } from '../api/graphql/mutations';
 import { 
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
 import type { AdminProfile, GraphQLUser, DashboardStatsData } from '../api/graphql/types';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+import {
+  ActivityPanel, CvsPanel, CvViewerModal, UserDetailModal, WebsiteSettingsPanel,
+} from '../components/admin/AdminPanels';
 
 // Django admin site lives on the same server as the API (proxied by nginx / Vite).
 const DJANGO_ADMIN_URL = '/admin/';
@@ -39,8 +42,12 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const { user, logout, loadUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'profile' | 'settings' | 'django-admin'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cvs' | 'activity' | 'profile' | 'settings' | 'django-admin'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Load user on mount
@@ -64,7 +71,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   });
 
   // Fetch dashboard stats
-  const { data: statsData, loading: statsLoading } = useQuery<{ dashboardStats: DashboardStatsData }>(GET_DASHBOARD_STATS, {
+  const { data: statsData, loading: statsLoading, refetch: refetchStats } = useQuery<{ dashboardStats: DashboardStatsData }>(GET_DASHBOARD_STATS, {
     fetchPolicy: 'network-only',
   });
 
@@ -75,11 +82,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
 
   // Update user role mutation
   const [updateUserRoleMutation] = useMutation(UPDATE_USER_ROLE, {
-    onCompleted: () => refetchUsers(),
+    onCompleted: () => { void refetchUsers(); void refetchStats(); },
+  });
+
+  const [updateUserStatusMutation] = useMutation(UPDATE_USER_STATUS, {
+    onCompleted: () => { void refetchUsers(); void refetchStats(); },
   });
 
   const users = usersData?.allUsers || [];
   const stats = statsData?.dashboardStats;
+  const filteredUsers = users.filter((account) => {
+    const search = userSearch.trim().toLowerCase();
+    const matchesSearch = !search ||
+      `${account.firstName} ${account.lastName} ${account.email}`.toLowerCase().includes(search);
+    const matchesStatus = userStatusFilter === 'all' ||
+      (userStatusFilter === 'active' ? account.isActive : !account.isActive);
+    return matchesSearch && matchesStatus;
+  });
+  const selectedUser = users.find((account) => account.id === selectedUserId) || null;
 
   const handleLogout = () => {
     logout();
@@ -109,6 +129,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             ? 'User is now an admin (website + Django admin).'
             : 'Admin access removed.'
           : result?.message || 'Could not change role.',
+      });
+    } catch {
+      setNotice({ ok: false, text: 'Could not reach the server.' });
+    }
+  };
+
+  const handleToggleUserStatus = async (account: GraphQLUser) => {
+    const isActive = !account.isActive;
+    try {
+      const { data } = await updateUserStatusMutation({
+        variables: { id: account.id, isActive },
+      });
+      const result = (data as { updateUserStatus?: { success: boolean; message?: string } } | undefined)?.updateUserStatus;
+      setNotice({
+        ok: !!result?.success,
+        text: result?.message || `Could not ${isActive ? 'activate' : 'suspend'} user.`,
       });
     } catch {
       setNotice({ ok: false, text: 'Could not reach the server.' });
@@ -186,6 +222,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'users', label: 'Users', icon: '👥' },
+              { id: 'cvs', label: 'CVs', icon: '📄' },
               { id: 'activity', label: 'Activity', icon: '📈' },
               { id: 'profile', label: 'My Profile', icon: '🪪' },
               { id: 'settings', label: 'Settings', icon: '⚙️' },
@@ -361,8 +398,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         {activeTab === 'users' && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Management</h3>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{users.length} users total</span>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Management</h3>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{filteredUsers.length} of {users.length} accounts</span>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <input
+                  type="search"
+                  value={userSearch}
+                  onChange={(event) => setUserSearch(event.target.value)}
+                  placeholder="Search name or email"
+                  aria-label="Search users"
+                  className="min-h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                <select
+                  value={userStatusFilter}
+                  onChange={(event) => setUserStatusFilter(event.target.value as typeof userStatusFilter)}
+                  aria-label="Filter users by status"
+                  className="min-h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
             </div>
             {usersError && (
               <p className="px-4 py-3 text-sm text-red-600 dark:text-red-400">Could not load users: {usersError.message}</p>
@@ -376,6 +435,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CVs</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Joined</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Active</th>
@@ -383,7 +443,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
@@ -407,6 +467,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                           {u.role === 'admin' ? '🔑 Admin' : '👤 User'}
                         </span>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${u.isActive
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                          {u.isActive ? 'Active' : 'Suspended'}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {u.cvCount ?? '-'}
                       </td>
@@ -426,6 +494,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                               >
                                 {u.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
                               </button>
+                              {u.role !== 'admin' && (
+                                <button
+                                  onClick={() => void handleToggleUserStatus(u)}
+                                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${u.isActive
+                                    ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300'
+                                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                  }`}
+                                >
+                                  {u.isActive ? 'Suspend' : 'Activate'}
+                                </button>
+                              )}
                               <button
                                 onClick={() => setShowDeleteModal(u.id)}
                                 className="px-3 py-1 text-xs font-medium bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
@@ -437,6 +516,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                           {u.id === user?.id && (
                             <span className="text-xs text-gray-400 dark:text-gray-500 italic">You</span>
                           )}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedUserId(u.id)}
+                            className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            Details
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -447,45 +533,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           </div>
         )}
 
+        {activeTab === 'cvs' && <CvsPanel notify={(ok, text) => setNotice({ ok, text })} onView={setSelectedCvId} onOpenDjango={openDjangoAdmin} onSelectUser={setSelectedUserId} />}
+
         {/* Activity Tab */}
-        {activeTab === 'activity' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Recent System Activity</h3>
-            <div className="space-y-4">
-              {stats?.recentActivity?.length ? stats.recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border border-gray-100 dark:border-gray-700">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                    activity.type === 'create' ? 'bg-green-100 dark:bg-green-900/30' :
-                    activity.type === 'publish' ? 'bg-blue-100 dark:bg-blue-900/30' :
-                    activity.type === 'admin' ? 'bg-red-100 dark:bg-red-900/30' :
-                    activity.type === 'auth' ? 'bg-purple-100 dark:bg-purple-900/30' :
-                    activity.type === 'download' ? 'bg-amber-100 dark:bg-amber-900/30' :
-                    'bg-gray-100 dark:bg-gray-700'
-                  }`}>
-                    {activity.type === 'create' ? '📝' :
-                     activity.type === 'publish' ? '🚀' :
-                     activity.type === 'admin' ? '🔑' :
-                     activity.type === 'auth' ? '👤' :
-                     activity.type === 'download' ? '📥' :
-                     activity.type === 'delete' ? '🗑️' :
-                     activity.type === 'import' ? '🔗' : '✏️'}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      <span className="font-semibold">{activity.user}</span> {activity.action}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{activity.detail}</p>
-                  </div>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{activity.time}</span>
-                </div>
-              )) : (
-                <div className="text-center py-8 text-gray-400">
-                  {statsLoading ? 'Loading activity...' : 'No recent activity'}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {activeTab === 'activity' && <ActivityPanel onSelectUser={setSelectedUserId} onViewCv={setSelectedCvId} />}
 
         {/* My Profile Tab */}
         {activeTab === 'profile' && (
@@ -544,6 +595,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-6">
+            <WebsiteSettingsPanel notify={(ok, text) => setNotice({ ok, text })} />
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Django Admin</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -589,6 +641,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           </div>
         )}
       </main>
+
+      {selectedUser && (
+        <UserDetailModal
+          user={selectedUser}
+          isSelf={selectedUser.id === user?.id}
+          notify={(ok, text) => setNotice({ ok, text })}
+          onClose={() => setSelectedUserId(null)}
+          onChanged={() => { void refetchUsers(); void refetchStats(); }}
+          onViewCv={setSelectedCvId}
+          onOpenDjango={openDjangoAdmin}
+        />
+      )}
+      {selectedCvId && (
+        <CvViewerModal
+          cvId={selectedCvId}
+          onClose={() => setSelectedCvId(null)}
+          onOpenDjango={openDjangoAdmin}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (

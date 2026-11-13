@@ -13,13 +13,13 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 // Django admin site lives on the same server as the API (proxied by nginx / Vite).
 const DJANGO_ADMIN_URL = '/admin/';
 
-const openDjangoAdmin = (path = '') => {
+const openDjangoAdmin = (path = '', target = '_blank') => {
   const token = localStorage.getItem('auth_token');
   if (!token) return;
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = `/admin-session-login/?next=${encodeURIComponent(`${DJANGO_ADMIN_URL}${path}`)}`;
-  form.target = '_blank';
+  form.target = target;
   const input = document.createElement('input');
   input.type = 'hidden';
   input.name = 'token';
@@ -39,7 +39,7 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const { user, logout, loadUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'profile' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'profile' | 'settings' | 'django-admin'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -47,6 +47,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  useEffect(() => {
+    if (activeTab === 'django-admin') openDjangoAdmin('', 'djangoAdminFrame');
+  }, [activeTab]);
 
   // Signed-in admin's own details
   const { data: profileData, loading: profileLoading } = useQuery<{ viewer: AdminProfile | null }>(GET_ADMIN_PROFILE, {
@@ -185,6 +189,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               { id: 'activity', label: 'Activity', icon: '📈' },
               { id: 'profile', label: 'My Profile', icon: '🪪' },
               { id: 'settings', label: 'Settings', icon: '⚙️' },
+              { id: 'django-admin', label: 'Django Admin', icon: '🛠️' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -217,6 +222,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             <span>{notice.text}</span>
             <button onClick={() => setNotice(null)} className="font-medium">Dismiss</button>
           </div>
+        )}
+        {activeTab === 'django-admin' && (
+          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+              <div>
+                <h2 className="font-semibold text-gray-900 dark:text-white">Django administration</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Signed in as {user?.email}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openDjangoAdmin('', 'djangoAdminFrame')}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Reload admin
+              </button>
+            </div>
+            <iframe
+              name="djangoAdminFrame"
+              title="Django administration"
+              src="about:blank"
+              className="h-[75vh] min-h-[36rem] w-full bg-white"
+            />
+          </section>
         )}
         {/* Overview Tab */}
         {activeTab === 'overview' && (

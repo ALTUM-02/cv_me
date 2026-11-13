@@ -187,6 +187,9 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
+# Allow the authenticated same-origin website admin page to embed Django admin.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 # CORS & CSRF Configuration
 CORS_ALLOW_ALL_ORIGINS = env_value(

@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useQuery, useMutation } from '@apollo/client/react';
-import { GET_ALL_USERS, GET_DASHBOARD_STATS } from '../api/graphql/queries';
+import { GET_ADMIN_PROFILE, GET_ALL_USERS, GET_DASHBOARD_STATS } from '../api/graphql/queries';
 import { DELETE_USER, UPDATE_USER_ROLE } from '../api/graphql/mutations';
 import { 
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
-import type { GraphQLUser, DashboardStatsData } from '../api/graphql/types';
+import type { AdminProfile, GraphQLUser, DashboardStatsData } from '../api/graphql/types';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+
+// Django admin site lives on the same server as the API (proxied by nginx / Vite).
+const DJANGO_ADMIN_URL = '/admin/';
+
+const formatDateTime = (value?: string | null) =>
+  value ? new Date(value).toLocaleString() : 'Never';
 
 interface AdminDashboardProps {
   onNavigate: (page: 'login' | 'register' | 'user-dashboard' | 'admin-dashboard' | 'cv-builder') => void;
@@ -16,16 +22,23 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const { user, logout, loadUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'activity' | 'profile' | 'settings'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Load user on mount
   useEffect(() => {
     loadUser();
   }, [loadUser]);
 
+  // Signed-in admin's own details
+  const { data: profileData, loading: profileLoading } = useQuery<{ viewer: AdminProfile | null }>(GET_ADMIN_PROFILE, {
+    fetchPolicy: 'network-only',
+  });
+  const profile = profileData?.viewer;
+
   // Fetch all users
-  const { data: usersData, refetch: refetchUsers } = useQuery<{ allUsers: GraphQLUser[] }>(GET_ALL_USERS, {
+  const { data: usersData, loading: usersLoading, error: usersError, refetch: refetchUsers } = useQuery<{ allUsers: GraphQLUser[] }>(GET_ALL_USERS, {
     fetchPolicy: 'network-only',
   });
 
@@ -53,20 +66,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   };
 
   const handleDeleteUser = async (userId: string) => {
-    await deleteUserMutation({ variables: { id: userId } });
+    try {
+      const { data } = await deleteUserMutation({ variables: { id: userId } });
+      const result = (data as { deleteUser?: { success: boolean; message?: string } } | undefined)?.deleteUser;
+      setNotice({ ok: !!result?.success, text: result?.message || 'Could not delete user.' });
+    } catch {
+      setNotice({ ok: false, text: 'Could not reach the server.' });
+    }
     setShowDeleteModal(null);
   };
 
   const handleToggleRole = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    await updateUserRoleMutation({ variables: { id: userId, role: newRole } });
+    try {
+      const { data } = await updateUserRoleMutation({ variables: { id: userId, role: newRole } });
+      const result = (data as { updateUserRole?: { success: boolean; message?: string } } | undefined)?.updateUserRole;
+      setNotice({
+        ok: !!result?.success,
+        text: result?.success
+          ? newRole === 'admin'
+            ? 'User is now an admin (website + Django admin).'
+            : 'Admin access removed.'
+          : result?.message || 'Could not change role.',
+      });
+    } catch {
+      setNotice({ ok: false, text: 'Could not reach the server.' });
+    }
   };
 
   const statCards = [
-    { label: 'Total Users', value: stats?.totalUsers ?? users.length, change: '+12%', color: 'blue' },
-    { label: 'Total CVs', value: stats?.totalCVs ?? '-', change: '+28%', color: 'green' },
-    { label: 'Active Today', value: stats?.activeToday ?? '-', change: '+5%', color: 'purple' },
-    { label: 'Published CVs', value: stats?.publishedCvs ?? '-', change: '+18%', color: 'amber' },
+    { label: 'Total Users', value: stats?.totalUsers ?? users.length },
+    { label: 'Total CVs', value: stats?.totalCVs ?? '-' },
+    { label: 'Active Today', value: stats?.activeToday ?? '-' },
+    { label: 'Published CVs', value: stats?.publishedCvs ?? '-' },
   ];
 
   return (
@@ -75,21 +107,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="w-10 h-10 bg-linear-to-br from-red-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin Panel</h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">ResumeForge Administration</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-3 min-w-0">
               <ThemeToggle />
-              <div className="flex items-center gap-3">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className="flex items-center gap-3 shrink-0"
+                title="My profile"
+              >
                 <div className="w-9 h-9 bg-linear-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                 </div>
@@ -97,16 +133,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</p>
                   <p className="text-xs text-red-600 dark:text-red-400 font-medium">Administrator</p>
                 </div>
-              </div>
+              </button>
+              <a
+                href={DJANGO_ADMIN_URL}
+                target="_blank"
+                rel="noopener"
+                className="hidden md:inline-block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+              >
+                Django Admin
+              </a>
               <button
                 onClick={() => onNavigate('user-dashboard')}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                className="shrink-0 px-2 sm:px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
               >
                 User View
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium"
+                className="shrink-0 px-2 sm:px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium"
               >
                 Sign Out
               </button>
@@ -123,6 +167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'users', label: 'Users', icon: '👥' },
               { id: 'activity', label: 'Activity', icon: '📈' },
+              { id: 'profile', label: 'My Profile', icon: '🪪' },
               { id: 'settings', label: 'Settings', icon: '⚙️' },
             ].map((tab) => (
               <button
@@ -144,6 +189,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {notice && (
+          <div
+            role="status"
+            className={`mb-6 flex items-center justify-between gap-4 rounded-lg px-4 py-3 text-sm ${
+              notice.ok
+                ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+            }`}
+          >
+            <span>{notice.text}</span>
+            <button onClick={() => setNotice(null)} className="font-medium">Dismiss</button>
+          </div>
+        )}
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <>
@@ -151,12 +209,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {statCards.map((stat) => (
                 <div key={stat.label} className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
-                    <span className="text-xs text-green-600 font-medium bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
-                      {stat.change}
-                    </span>
-                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{stat.label}</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
                     {statsLoading ? (
                       <svg className="animate-spin w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24">
@@ -267,12 +320,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Management</h3>
               <span className="text-sm text-gray-500 dark:text-gray-400">{users.length} users total</span>
             </div>
+            {usersError && (
+              <p className="px-4 py-3 text-sm text-red-600 dark:text-red-400">Could not load users: {usersError.message}</p>
+            )}
+            {usersLoading && !usersData && (
+              <p className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">Loading users…</p>
+            )}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700/50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CVs</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Joined</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Active</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
@@ -302,6 +362,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                         }`}>
                           {u.role === 'admin' ? '🔑 Admin' : '👤 User'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {u.cvCount ?? '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {new Date(u.createdAt).toLocaleDateString()}
@@ -345,7 +408,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Recent System Activity</h3>
             <div className="space-y-4">
-              {stats?.recentActivity?.map((activity) => (
+              {stats?.recentActivity?.length ? stats.recentActivity.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border border-gray-100 dark:border-gray-700">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
                     activity.type === 'create' ? 'bg-green-100 dark:bg-green-900/30' :
@@ -371,10 +434,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   </div>
                   <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{activity.time}</span>
                 </div>
-              )) || (
+              )) : (
                 <div className="text-center py-8 text-gray-400">
                   {statsLoading ? 'Loading activity...' : 'No recent activity'}
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* My Profile Tab */}
+        {activeTab === 'profile' && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+              <div className="w-16 h-16 bg-linear-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
+                {profile?.firstName?.charAt(0)}{profile?.lastName?.charAt(0)}
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {profile ? `${profile.firstName} ${profile.lastName}` : profileLoading ? 'Loading…' : 'Profile unavailable'}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{profile?.email}</p>
+              </div>
+            </div>
+            {profile && (
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  ['First name', profile.firstName || '—'],
+                  ['Last name', profile.lastName || '—'],
+                  ['Email', profile.email],
+                  ['Website role', profile.role === 'admin' ? 'Administrator' : 'User'],
+                  ['Django admin access', profile.isSuperuser ? 'Superuser' : profile.isStaff ? 'Staff' : 'No'],
+                  ['CVs created', String(profile.cvCount)],
+                  ['Member since', formatDateTime(profile.dateJoined)],
+                  ['Last login', formatDateTime(profile.lastLogin)],
+                ].map(([label, value]) => (
+                  <div key={label} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <dt className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</dt>
+                    <dd className="mt-1 text-sm font-medium text-gray-900 dark:text-white break-words">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href={DJANGO_ADMIN_URL}
+                target="_blank"
+                rel="noopener"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                Open Django Admin
+              </a>
+              {profile && (
+                <a
+                  href={`${DJANGO_ADMIN_URL}accounts/user/${profile.id}/change/`}
+                  target="_blank"
+                  rel="noopener"
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                >
+                  Edit my details in Django Admin
+                </a>
               )}
             </div>
           </div>
@@ -384,35 +503,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         {activeTab === 'settings' && (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Settings</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Maintenance Mode</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Temporarily disable public access</p>
-                  </div>
-                  <button className="w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full relative transition-colors">
-                    <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow transition-transform"></div>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Send email alerts for new registrations</p>
-                  </div>
-                  <button className="w-12 h-6 bg-blue-600 rounded-full relative transition-colors">
-                    <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow transition-transform"></div>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Allow Registration</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Enable new user signups</p>
-                  </div>
-                  <button className="w-12 h-6 bg-blue-600 rounded-full relative transition-colors">
-                    <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow transition-transform"></div>
-                  </button>
-                </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Django Admin</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Manage every user, CV, certificate and upload directly in the Django admin site. Sign in there with
+                the same email and password you use here. Website admins and Django staff are the same accounts:
+                “Make Admin” on the Users tab grants Django admin access, and Django superusers are admins here.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  ['Open Django Admin', ''],
+                  ['Users', 'accounts/user/'],
+                  ['CVs', 'cv_builder/cv/'],
+                ].map(([label, path]) => (
+                  <a
+                    key={label}
+                    href={`${DJANGO_ADMIN_URL}${path}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                  >
+                    {label}
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -423,16 +535,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">GraphQL Endpoint</label>
                   <input
                     type="text"
-                    value="/graphql"
+                    value="/graphql/"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
                     readOnly
                   />
                 </div>
-                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  GraphQL endpoint connected (proxied to Django backend)
+                <div className={`flex items-center gap-2 text-sm ${usersError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                  {usersError ? 'Backend not reachable — check the Django server.' : 'Connected to the Django backend.'}
                 </div>
               </div>
             </div>

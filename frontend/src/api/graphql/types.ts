@@ -16,6 +16,21 @@ export interface GraphQLUser {
   avatar?: string;
   createdAt: string;
   lastLogin?: string;
+  isActive?: boolean;
+  cvCount?: number;
+}
+
+export interface AdminProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  dateJoined: string;
+  lastLogin?: string | null;
+  isStaff: boolean;
+  isSuperuser: boolean;
+  cvCount: number;
 }
 
 export interface TokenAuthPayload {

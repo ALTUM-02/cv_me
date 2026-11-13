@@ -126,24 +126,8 @@ export const UPDATE_CUSTOMIZATION = gql`
 `;
 
 export const UPDATE_QR_CONFIG = gql`
-  mutation UpdateQrConfig(
-    $cvId: ID!
-    $enabled: Boolean
-    $style: String
-    $foreground: String
-    $background: String
-    $size: Int
-    $url: String
-  ) {
-    updateQrConfig(
-      cvId: $cvId
-      enabled: $enabled
-      style: $style
-      foreground: $foreground
-      background: $background
-      size: $size
-      url: $url
-    ) {
+  mutation UpdateQrConfig($cvId: ID!, $input: QRConfigInput!) {
+    updateQrConfig(cvId: $cvId, input: $input) {
       success
       message
     }
@@ -299,10 +283,9 @@ export const DELETE_LANGUAGE = gql`
 `;
 
 export const CREATE_CERTIFICATION = gql`
-  mutation CreateCertification($cvId: ID!) {
-    createCertification(cvId: $cvId) {
+  mutation CreateCertification($cvId: ID!, $input: CertificationInput!) {
+    createCertification(cvId: $cvId, input: $input) {
       success
-      message
       certification {
         id
         name
@@ -315,24 +298,9 @@ export const CREATE_CERTIFICATION = gql`
 `;
 
 export const UPDATE_CERTIFICATION = gql`
-  mutation UpdateCertification(
-    $id: ID!
-    $name: String
-    $issuer: String
-    $date: String
-    $url: String
-    $order: Int
-  ) {
-    updateCertification(
-      id: $id
-      name: $name
-      issuer: $issuer
-      date: $date
-      url: $url
-      order: $order
-    ) {
+  mutation UpdateCertification($id: ID!, $input: CertificationInput!) {
+    updateCertification(id: $id, input: $input) {
       success
-      message
     }
   }
 `;
@@ -341,7 +309,6 @@ export const DELETE_CERTIFICATION = gql`
   mutation DeleteCertification($id: ID!) {
     deleteCertification(id: $id) {
       success
-      message
     }
   }
 `;
@@ -396,6 +363,7 @@ export const UPDATE_USER_ROLE = gql`
   mutation UpdateUserRole($id: ID!, $role: String!) {
     updateUserRole(id: $id, role: $role) {
       success
+      message
       user {
         id
         email

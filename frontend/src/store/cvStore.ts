@@ -28,6 +28,16 @@ import {
 import { GET_ALL_CVS as GET_ALL_CVS_QUERY, GET_CV } from '../api/graphql/queries';
 import { getTemplate } from '../data/templates';
 import { normalizeStringList } from '../utils/helpers';
+
+// Only send the fields the backend CertificationInput accepts.
+const certificationInput = (cert: Partial<Certification>) => {
+  const input: { name?: string; issuer?: string; date?: string; url?: string } = {};
+  if (cert.name !== undefined) input.name = cert.name;
+  if (cert.issuer !== undefined) input.issuer = cert.issuer;
+  if (cert.date !== undefined) input.date = cert.date;
+  if (cert.url !== undefined) input.url = cert.url;
+  return input;
+};
 import type {
   CVData,
   CustomizationOptions,
@@ -832,7 +842,7 @@ export const useCVStore = create<CVStore>()(
         try {
           const { data } = await apolloClient.mutate({
             mutation: CREATE_CERTIFICATION,
-            variables: { cvId: currentCvId, input: newCert },
+            variables: { cvId: currentCvId, input: certificationInput(newCert) },
           });
           if (data?.createCertification?.certification?.id) {
             set((state) => ({
@@ -868,7 +878,7 @@ export const useCVStore = create<CVStore>()(
         try {
           await apolloClient.mutate({
             mutation: UPDATE_CERTIFICATION,
-            variables: { id, input: cert },
+            variables: { id, input: certificationInput(cert) },
           });
         } catch {
           await get().loadCV(currentCvId);

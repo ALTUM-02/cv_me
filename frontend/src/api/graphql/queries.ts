@@ -152,6 +152,25 @@ export const GET_ALL_USERS = gql`
       avatar
       createdAt
       lastLogin
+      isActive
+      cvCount
+    }
+  }
+`;
+
+export const GET_ADMIN_PROFILE = gql`
+  query GetAdminProfile {
+    viewer {
+      id
+      email
+      firstName
+      lastName
+      role
+      dateJoined
+      lastLogin
+      isStaff
+      isSuperuser
+      cvCount
     }
   }
 `;

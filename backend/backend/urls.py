@@ -15,7 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
+from django.views.static import serve as serve_media
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView
 try:
@@ -73,3 +74,14 @@ if GraphQLView is not None:
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Profile photos are public (they appear on the CV). Serve them from Django so
+    # they load in production without a separate web-server media mapping.
+    # Certificates stay private and are only served by the authenticated view above.
+    urlpatterns += [
+        re_path(
+            r'^media/(?P<path>profile-photos/.+)$',
+            serve_media,
+            {'document_root': settings.MEDIA_ROOT},
+        ),
+    ]

@@ -180,6 +180,9 @@ FRONTEND_URL = env_value('FRONTEND_URL', 'http://127.0.0.1:5173')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'mediafiles'
+# Make uploaded files and folders readable by the web server process.
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'

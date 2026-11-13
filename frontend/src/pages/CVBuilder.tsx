@@ -236,22 +236,22 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
       {/* Top Navigation Bar */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm transition-colors duration-300">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between gap-2 h-16">
             {/* Logo */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="w-10 h-10 bg-linear-to-from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">ResumeForge</h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400 -mt-0.5">Professional CV Builder</p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 overflow-x-auto hide-scrollbar">
               <ThemeToggle />
 
 
@@ -259,7 +259,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* LinkedIn Import */}
               <button
                 onClick={() => setShowLinkedInModal(true)}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
@@ -270,7 +270,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* Download */}
               <button
                 onClick={handleDownloadHTML}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -281,7 +281,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* Print */}
               <button
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -292,7 +292,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* Email Share */}
               <button
                 onClick={() => setShowEmailModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -306,7 +306,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
                   const user = useAuthStore.getState().user;
                   onNavigate(user?.role === 'admin' ? 'admin-dashboard' : 'user-dashboard');
                 }}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -317,7 +317,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors text-sm font-medium"
+                className="shrink-0 flex items-center gap-2 p-2 sm:px-4 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors text-sm font-medium"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -325,26 +325,42 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
                 <span className="hidden sm:inline">Logout</span>
               </button>
 
-              {/* Mobile Preview Toggle */}
-              <button
-                onClick={() => setShowMobilePreview(!showMobilePreview)}
-                className="lg:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Mobile Edit / Preview switch */}
+      <div className="lg:hidden sticky top-16 z-30 bg-white/95 dark:bg-gray-800/95 backdrop-blur border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+        <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-700">
+          {([
+            { preview: false, label: 'Edit' },
+            { preview: true, label: 'Preview' },
+          ] as const).map(({ preview, label }) => (
+            <button
+              key={label}
+              onClick={() => {
+                setShowMobilePreview(preview);
+                window.scrollTo({ top: 0 });
+              }}
+              aria-pressed={showMobilePreview === preview}
+              className={`py-2 rounded-lg text-sm font-medium transition-colors ${
+                showMobilePreview === preview
+                  ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Panel - Editor */}
-          <div className={`lg:w-150 xl:w-100 shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
+          <div className={`w-full lg:w-150 xl:w-100 shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
               {/* Editor Tabs */}
               <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
@@ -360,14 +376,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
                       }`}
                     >
                       {tab.icon}
-                      <span className="hidden sm:inline">{tab.label}</span>
+                      <span>{tab.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Editor Content */}
-              <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="p-4 lg:max-h-[calc(100vh-200px)] lg:overflow-y-auto">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     {editorTabs.find(t => t.id === activeTab)?.label}
@@ -388,7 +404,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
 
           {/* Right Panel - Preview */}
           <div className={`flex-1 min-w-0 ${showMobilePreview ? '' : 'hidden lg:block'}`}>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sticky top-24 transition-colors duration-300">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden lg:sticky lg:top-24 transition-colors duration-300">
               {/* Preview Header */}
               <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -403,7 +419,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
               {/* Preview Content */}
               <div 
                 ref={previewRef}
-                className="p-4 bg-gray-100 dark:bg-gray-900 overflow-auto max-h-[calc(100vh-200px)]"
+                className="p-2 sm:p-4 bg-gray-100 dark:bg-gray-900 overflow-auto lg:max-h-[calc(100vh-200px)]"
               >
                 <CVPreview 
                   cvData={cvData} 
@@ -414,31 +430,6 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Mobile: Show Editor */}
-          <div className={`lg:hidden ${showMobilePreview ? '' : 'fixed inset-0 z-30 bg-white dark:bg-gray-900'}`}>
-            {!showMobilePreview && (
-              <div className="h-full overflow-y-auto">
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 z-10">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">CV Preview</h2>
-                  <button
-                    onClick={() => setShowMobilePreview(false)}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="p-4">
-                  <CVPreview 
-                    cvData={cvData} 
-                    customization={customization}
-                    qrConfig={qrConfig}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 

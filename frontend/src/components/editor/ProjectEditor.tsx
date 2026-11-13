@@ -64,7 +64,7 @@ export const ProjectEditor: React.FC = () => {
           
           {expandedId === proj.id && (
             <div className="p-4 space-y-4 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
                   <input

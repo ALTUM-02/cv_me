@@ -13,6 +13,23 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 // Django admin site lives on the same server as the API (proxied by nginx / Vite).
 const DJANGO_ADMIN_URL = '/admin/';
 
+const openDjangoAdmin = (path = '') => {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `/admin-session-login/?next=${encodeURIComponent(`${DJANGO_ADMIN_URL}${path}`)}`;
+  form.target = '_blank';
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'token';
+  input.value = token;
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
+};
+
 const formatDateTime = (value?: string | null) =>
   value ? new Date(value).toLocaleString() : 'Never';
 
@@ -134,14 +151,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <p className="text-xs text-red-600 dark:text-red-400 font-medium">Administrator</p>
                 </div>
               </button>
-              <a
-                href={DJANGO_ADMIN_URL}
-                target="_blank"
-                rel="noopener"
+              <button
+                type="button"
+                onClick={() => openDjangoAdmin()}
                 className="hidden md:inline-block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
               >
                 Django Admin
-              </a>
+              </button>
               <button
                 onClick={() => onNavigate('user-dashboard')}
                 className="shrink-0 px-2 sm:px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
@@ -477,23 +493,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               </dl>
             )}
             <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={DJANGO_ADMIN_URL}
-                target="_blank"
-                rel="noopener"
+              <button
+                type="button"
+                onClick={() => openDjangoAdmin()}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
               >
                 Open Django Admin
-              </a>
+              </button>
               {profile && (
-                <a
-                  href={`${DJANGO_ADMIN_URL}accounts/user/${profile.id}/change/`}
-                  target="_blank"
-                  rel="noopener"
+                <button
+                  type="button"
+                  onClick={() => openDjangoAdmin(`accounts/user/${profile.id}/change/`)}
                   className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
                 >
                   Edit my details in Django Admin
-                </a>
+                </button>
               )}
             </div>
           </div>
@@ -515,15 +529,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   ['Users', 'accounts/user/'],
                   ['CVs', 'cv_builder/cv/'],
                 ].map(([label, path]) => (
-                  <a
+                  <button
                     key={label}
-                    href={`${DJANGO_ADMIN_URL}${path}`}
-                    target="_blank"
-                    rel="noopener"
+                    type="button"
+                    onClick={() => openDjangoAdmin(path)}
                     className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
                   >
                     {label}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

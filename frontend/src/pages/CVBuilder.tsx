@@ -360,7 +360,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
       <div className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Panel - Editor */}
-          <div className={`w-full lg:w-150 xl:w-100 shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
+          <div className={`w-full lg:w-[37.5rem] xl:w-[32rem] shrink-0 ${showMobilePreview ? 'hidden lg:block' : ''}`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
               {/* Editor Tabs */}
               <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
@@ -369,7 +369,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({ onNavigate }) => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                      aria-pressed={activeTab === tab.id}
+                      className={`flex min-h-11 items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
                         activeTab === tab.id
                           ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 bg-white dark:bg-gray-800'
                           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'

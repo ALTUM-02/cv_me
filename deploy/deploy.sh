@@ -11,10 +11,12 @@ echo "==> Pulling latest code"
 as_user "cd '$REPO_DIR' && git pull --ff-only"
 
 echo "==> Backend: install, migrate, collectstatic"
-VENV=""
-for v in "$REPO_DIR/venv" "$REPO_DIR/.venv" "$REPO_DIR/backend/venv" "$REPO_DIR/backend/.venv" "$REPO_DIR/env"; do
+VENV="${VENV:-}"
+USER_HOME="$(getent passwd "$RUN_USER" | cut -d: -f6)"
+[ -z "$VENV" ] && for v in "$REPO_DIR/martin" "$USER_HOME/martin" "$REPO_DIR/venv" "$REPO_DIR/.venv" "$REPO_DIR/backend/venv" "$REPO_DIR/backend/.venv" "$REPO_DIR/env"; do
   [ -f "$v/bin/activate" ] && VENV="$v" && break
 done
+echo "    virtualenv: ${VENV:-none (system python)}"
 ACTIVATE=""
 [ -n "$VENV" ] && ACTIVATE="source '$VENV/bin/activate' &&"
 as_user "cd '$REPO_DIR/backend' && $ACTIVATE pip install -q -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput"

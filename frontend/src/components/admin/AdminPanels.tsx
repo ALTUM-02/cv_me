@@ -42,7 +42,7 @@ const ACTIVITY_TYPES: Record<string, { label: string; icon: string; tone: string
   admin: { label: 'Admin action', icon: '🔑', tone: 'bg-red-100 dark:bg-red-900/30' },
 };
 
-export const timeAgo = (value?: string | null) => {
+const timeAgo = (value?: string | null) => {
   if (!value) return 'Never';
   const seconds = Math.round((Date.now() - new Date(value).getTime()) / 1000);
   if (seconds < 45) return 'just now';

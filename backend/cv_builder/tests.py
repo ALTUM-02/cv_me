@@ -128,7 +128,8 @@ class CertificationUploadTests(TestCase):
             )
 
         self.assertEqual(response.status_code, 400)
-        self.assertFalse(self.cv.personal_info.photo_file)
+        stored = PersonalInfo.objects.filter(cv=self.cv).first()
+        self.assertFalse(stored and stored.photo_file)
 
     def test_profile_photo_upload_is_scoped_to_cv_owner(self):
         with patch(

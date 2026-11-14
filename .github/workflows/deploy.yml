@@ -8,19 +8,46 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+env:
+  # Defaults used when the optional secrets are not set.
+  SERVER_HOST: ${{ secrets.SERVER_HOST || '13.62.105.60' }}
+  SERVER_USER: ${{ secrets.SERVER_USER || 'ubuntu' }}
+  SERVER_PROJECT_DIR: ${{ secrets.SERVER_PROJECT_DIR }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Check required secrets
+        env:
+          HAS_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::error::Add the SSH_PRIVATE_KEY secret (the full contents of your server .pem key) in GitHub: Settings > Secrets and variables > Actions > New repository secret"
+            exit 1
+          fi
+          echo "Deploying to $SERVER_USER@$SERVER_HOST"
+
       - name: Update the live server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: SERVER_PROJECT_DIR
           command_timeout: 20m
           script: |
             set -e
-            cd "${{ secrets.SERVER_PROJECT_DIR }}"
+            DIR="$SERVER_PROJECT_DIR"
+            if [ -z "$DIR" ]; then
+              # Find the cv_me git checkout in the home folder
+              DIR="$(find "$HOME" -maxdepth 4 -type d -name .git -path '*cv_me*' 2>/dev/null | head -1 | xargs -r dirname)"
+            fi
+            if [ -z "$DIR" ] || [ ! -d "$DIR/.git" ]; then
+              echo "Could not find the cv_me project folder. Add a SERVER_PROJECT_DIR secret with its full path."
+              exit 1
+            fi
+            echo "Project folder: $DIR"
+            cd "$DIR"
             git pull --ff-only origin main
             sudo bash deploy/deploy.sh

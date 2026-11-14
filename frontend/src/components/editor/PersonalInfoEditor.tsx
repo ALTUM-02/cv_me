@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useCVStore } from '../../store/cvStore';
 import { removeProfilePhoto, uploadProfilePhoto } from '../../api/profilePhotos';
+import { profilePhotoUrl } from '../../api/profilePhotoUrl';
 
 const MAX_PROFILE_PHOTO_SIZE = 25 * 1024 * 1024;
 
@@ -125,7 +126,7 @@ export const PersonalInfoEditor: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className={`w-20 h-20 overflow-hidden border-2 border-gray-200 shadow-sm ${getShapeClass()}`}>
               <img
-                src={personalInfo.photo}
+                src={profilePhotoUrl(personalInfo.photo)}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

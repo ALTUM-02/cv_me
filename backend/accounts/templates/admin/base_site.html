@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | ResumeForge{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'accounts/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <a href="/">ResumeForge <span>Admin</span></a>
+  </div>
+{% endblock %}
+
+{% block nav-global %}
+  <a class="rf-frontend-link" href="/">Open website dashboard</a>
+{% endblock %}

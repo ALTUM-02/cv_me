@@ -32,6 +32,11 @@ class CustomUserAdmin(UserAdmin):
 from .models import ActivityLog, SiteSettings
 
 
+admin.site.site_header = 'ResumeForge administration'
+admin.site.site_title = 'ResumeForge Admin'
+admin.site.index_title = 'Website management'
+
+
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
     list_display = ('updated_at', 'user_label', 'action', 'detail', 'type')

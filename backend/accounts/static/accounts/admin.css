@@ -1,0 +1,108 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --surface: #ffffff;
+  --page: #f8fafc;
+  --line: #e2e8f0;
+  --ink: #0f172a;
+  --muted: #64748b;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#header {
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
+}
+
+#branding #site-name a {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+#branding #site-name a span {
+  margin-left: .35rem;
+  color: var(--primary);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+#user-tools, #user-tools a { color: var(--muted); }
+#user-tools a:hover { color: var(--primary); }
+
+.rf-frontend-link {
+  display: inline-block;
+  margin: .7rem 0;
+  padding: .5rem .8rem;
+  border: 1px solid var(--line);
+  border-radius: .6rem;
+  color: var(--primary);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.rf-frontend-link:hover {
+  border-color: var(--primary);
+  background: #eff6ff;
+}
+
+#nav-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+
+#content {
+  padding-top: 2rem;
+}
+
+#content h1, #content caption, .module caption {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.module, #changelist, .inline-group, .submit-row {
+  border: 1px solid var(--line);
+  border-radius: .8rem;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+}
+
+.module caption, .module h2 {
+  border-radius: .8rem .8rem 0 0;
+  background: #f1f5f9;
+  color: var(--ink);
+}
+
+a:link, a:visited { color: var(--primary); }
+a:hover { color: var(--primary-dark); }
+
+input[type="submit"], .submit-row input, a.button, .button, input.default {
+  border-radius: .55rem;
+  background: var(--primary);
+  color: white;
+  font-weight: 650;
+}
+
+input[type="submit"]:hover, .submit-row input:hover, a.button:hover, .button:hover,
+input.default:hover {
+  background: var(--primary-dark);
+}
+
+@media (max-width: 767px) {
+  #header { padding: .75rem 1rem; }
+  #branding #site-name a { font-size: 1rem; }
+  #user-tools { margin-top: .5rem; }
+  #content { padding: 1rem; }
+  #content-main, #content-related { width: 100%; float: none; }
+  .module, #changelist { overflow-x: auto; }
+  #changelist table { min-width: 42rem; }
+}

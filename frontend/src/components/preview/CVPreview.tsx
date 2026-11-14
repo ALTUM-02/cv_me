@@ -2,6 +2,7 @@ import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { CVData, CustomizationOptions, QRCodeConfig } from '../../types';
 import { formatDate } from '../../utils/helpers';
+import { profilePhotoUrl } from '../../api/profilePhotoUrl';
 
 interface CVPreviewProps {
   cvData: CVData;
@@ -73,7 +74,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
               }`}
             >
               <img 
-                src={personalInfo.photo} 
+                src={profilePhotoUrl(personalInfo.photo)}
                 alt={`${personalInfo.firstName} ${personalInfo.lastName}`}
                 className="w-full h-full object-cover"
               />

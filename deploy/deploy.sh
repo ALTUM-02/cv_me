@@ -13,7 +13,7 @@ as_user "cd '$REPO_DIR' && git pull --ff-only"
 echo "==> Backend: install, migrate, collectstatic"
 VENV="${VENV:-}"
 USER_HOME="$(getent passwd "$RUN_USER" | cut -d: -f6)"
-[ -z "$VENV" ] && for v in "$REPO_DIR/martin" "$USER_HOME/martin" "$REPO_DIR/venv" "$REPO_DIR/.venv" "$REPO_DIR/backend/venv" "$REPO_DIR/backend/.venv" "$REPO_DIR/env"; do
+[ -z "$VENV" ] && for v in "$REPO_DIR/backend/martin" "$REPO_DIR/martin" "$USER_HOME/martin" "$REPO_DIR/venv" "$REPO_DIR/.venv" "$REPO_DIR/backend/venv" "$REPO_DIR/backend/.venv" "$REPO_DIR/env"; do
   [ -f "$v/bin/activate" ] && VENV="$v" && break
 done
 echo "    virtualenv: ${VENV:-none (system python)}"

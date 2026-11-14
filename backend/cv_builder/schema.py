@@ -40,6 +40,8 @@ class PersonalInfoType(DjangoObjectType):
     def resolve_photo(self, info):
         if self.photo_file:
             return self.photo_file.url
+        if self.photo and self.photo.startswith('/media/'):
+            return '/api' + self.photo  # old links that nginx blocks
         return self.photo
 
 

@@ -106,9 +106,34 @@ class CertificationUploadTests(TestCase):
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json()['photo'].startswith('/media/profile-photos/'))
+        self.assertTrue(response.json()['photo'].startswith('/api/media/profile-photos/'))
         self.assertTrue(self.cv.personal_info.photo_file)
         self.assertEqual(self.cv.personal_info.photo, '')
+
+    @override_settings(DEBUG=False)
+    def test_uploaded_profile_photo_is_downloadable_under_api(self):
+        png = b'\x89PNG\r\n\x1a\n' + b'0' * 32
+        with patch(
+            'cv_builder.views.JWTAuthentication.authenticate',
+            return_value=self.user,
+        ):
+            response = self.client.post(
+                f'/api/cvs/{self.cv.pk}/profile-photo/',
+                {'photo': SimpleUploadedFile('me.png', png, content_type='image/png')},
+                HTTP_AUTHORIZATION='JWT test-token',
+            )
+        self.assertEqual(response.status_code, 200)
+        url = response.json()['photo']
+        self.assertTrue(url.startswith('/api/media/profile-photos/'), url)
+        from django.urls import clear_url_caches
+        import importlib, backend.urls
+        clear_url_caches()
+        importlib.reload(backend.urls)
+        with override_settings(ROOT_URLCONF=backend.urls):
+            photo = self.client.get(url)
+            self.assertEqual(photo.status_code, 200)
+            self.assertEqual(b''.join(photo.streaming_content), png)
+            self.assertEqual(self.client.get(url.replace('profile-photos', 'certificates')).status_code, 404)
 
     def test_profile_photo_upload_rejects_mismatched_contents(self):
         with patch(

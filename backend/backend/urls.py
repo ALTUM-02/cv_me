@@ -116,9 +116,10 @@ else:
     # Profile photos are public (they appear on the CV). Serve them from Django so
     # they load in production without a separate web-server media mapping.
     # Certificates stay private and are only served by the authenticated view above.
+    # /media/... is kept for old links; /api/media/... is what the site uses now.
     urlpatterns += [
         re_path(
-            r'^media/(?P<path>profile-photos/.+)$',
+            r'^(?:api/)?media/(?P<path>profile-photos/.+)$',
             public_profile_photo,
         ),
     ]

@@ -160,7 +160,9 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+# Served under /api/ because the production nginx forwards /api/ to Django but
+# blocks its own /static/ and /media/ folders. WhiteNoise serves static files.
+STATIC_URL = env_value('STATIC_URL', '/api/static/')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Only include frontend public folder if it exists (prevents crash on backend-only Render deploy)
@@ -178,7 +180,7 @@ STORAGES = {
 
 FRONTEND_URL = env_value('FRONTEND_URL', 'http://127.0.0.1:5173')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = env_value('MEDIA_URL', '/api/media/')
 MEDIA_ROOT = BASE_DIR / 'mediafiles'
 # Make uploaded files and folders readable by the web server process.
 FILE_UPLOAD_PERMISSIONS = 0o644

@@ -165,7 +165,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3 shrink-0">
-              <div className="w-10 h-10 bg-linear-to-br from-red-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
@@ -183,12 +183,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                 className="flex items-center gap-3 shrink-0"
                 title="My profile"
               >
-                <div className="w-9 h-9 bg-linear-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</p>
-                  <p className="text-xs text-red-600 dark:text-red-400 font-medium">Administrator</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Administrator</p>
                 </div>
               </button>
               <button
@@ -233,7 +233,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-red-500 text-red-600 dark:text-red-400'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
@@ -270,7 +270,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               <button
                 type="button"
                 onClick={() => openDjangoAdmin('', 'djangoAdminFrame')}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Reload admin
               </button>
@@ -542,7 +542,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         {activeTab === 'profile' && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-linear-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
+              <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
                 {profile?.firstName?.charAt(0)}{profile?.lastName?.charAt(0)}
               </div>
               <div>
@@ -575,7 +575,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               <button
                 type="button"
                 onClick={() => openDjangoAdmin()}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
               >
                 Open Django Admin
               </button>

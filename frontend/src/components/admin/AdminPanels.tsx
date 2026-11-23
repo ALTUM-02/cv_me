@@ -444,7 +444,7 @@ export const CvViewerModal: React.FC<{ cvId: string; onClose: () => void; onOpen
           <button
             type="button"
             onClick={() => onOpenDjango(`cv_builder/cv/${cv.id}/change/`)}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
             Edit this CV in Django Admin
           </button>
@@ -530,7 +530,7 @@ export const UserDetailModal: React.FC<{
             onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <div className="sm:col-span-3 flex flex-wrap gap-2">
             <button type="submit" disabled={!dirty || saving}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium disabled:opacity-50">
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
               {saving ? 'Saving…' : 'Save changes'}
             </button>
             <button type="button" className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
@@ -608,7 +608,7 @@ export const WebsiteSettingsPanel: React.FC<{ notify: Notify }> = ({ notify }) =
       </span>
       <input
         type="checkbox"
-        className="mt-1 h-5 w-5 accent-red-600"
+        className="mt-1 h-5 w-5 accent-blue-600"
         checked={form[key]}
         onChange={(e) => setForm({ ...form, [key]: e.target.checked })}
       />
@@ -640,7 +640,7 @@ export const WebsiteSettingsPanel: React.FC<{ notify: Notify }> = ({ notify }) =
             <button key={level} type="button"
               onClick={() => setForm({ ...form, announcementLevel: level })}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg capitalize ${
-                form.announcementLevel === level ? 'bg-red-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                form.announcementLevel === level ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
               }`}>
               {level}
             </button>
@@ -665,7 +665,7 @@ export const WebsiteSettingsPanel: React.FC<{ notify: Notify }> = ({ notify }) =
       )}
 
       <button type="submit" disabled={saving}
-        className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium disabled:opacity-50">
+        className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
         {saving ? 'Saving…' : 'Save website settings'}
       </button>
     </form>
